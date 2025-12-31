@@ -1900,7 +1900,7 @@
         // The timeline will automatically scroll to center the current time
 
         // ============================================
-        // Mini Player Functionality - FLIP Animation
+        // Mini Player - Scroll-Driven Animation
         // ============================================
 
         const videoSection = document.getElementById('liveVideoSection');
@@ -1910,29 +1910,37 @@
         const closeVideoBtn = document.getElementById('closeVideoBtn');
         const returnVideoBtn = document.getElementById('returnVideoBtn');
 
-        let isMiniMode = false;
-        let isMinimized = false;
         let isClosed = false;
-        let isAnimating = false;
-        let originalRect = null;
+        let isMinimized = false;
+        let originalPosition = null;
+        let scrollAnimationActive = false;
 
-        // Mini player target dimensions and position
+        // Mini player target dimensions
         const MINI_WIDTH = 380;
         const MINI_MARGIN = 24;
 
-        // Store original position
-        function captureOriginalPosition() {
-            if (videoSection && !isMiniMode) {
-                originalRect = videoSection.getBoundingClientRect();
-                // Store scroll position too
-                originalRect.scrollY = window.scrollY;
-            }
+        // Easing function for smoother animation curve
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
         }
 
-        // Calculate mini player position
+        // Capture original video position (call once after layout)
+        function captureOriginalPosition() {
+            if (!videoSection || isClosed) return;
+
+            const rect = videoSection.getBoundingClientRect();
+            originalPosition = {
+                top: rect.top + window.scrollY,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height
+            };
+        }
+
+        // Calculate mini player target position
         function getMiniPosition() {
             const aspectRatio = 16 / 9;
-            const headerHeight = 45; // approximate header height
+            const headerHeight = 45;
             const videoHeight = MINI_WIDTH / aspectRatio;
 
             return {
@@ -1943,161 +1951,107 @@
             };
         }
 
-        // FLIP Animation: Enter mini mode
-        function enterMiniMode() {
-            if (isMiniMode || isClosed || isAnimating) return;
-            isAnimating = true;
-
-            // FIRST: Capture current position
-            const firstRect = videoSection.getBoundingClientRect();
-            captureOriginalPosition();
-
-            // Show placeholder immediately
-            videoPlaceholder.classList.add('visible');
-
-            // LAST: Calculate final mini position
-            const miniPos = getMiniPosition();
-
-            // Make it fixed and set to current position
-            videoSection.style.position = 'fixed';
-            videoSection.style.top = firstRect.top + 'px';
-            videoSection.style.left = firstRect.left + 'px';
-            videoSection.style.width = firstRect.width + 'px';
-            videoSection.style.margin = '0';
-            videoSection.style.borderRadius = '0';
-            videoSection.style.boxShadow = 'none';
-
-            // Force reflow
-            videoSection.offsetHeight;
-
-            // Add transition class
-            videoSection.classList.add('animating');
-
-            // PLAY: Animate to mini position
-            requestAnimationFrame(() => {
-                videoSection.style.top = miniPos.top + 'px';
-                videoSection.style.left = miniPos.left + 'px';
-                videoSection.style.width = miniPos.width + 'px';
-                videoSection.style.borderRadius = '12px';
-                videoSection.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08)';
-            });
-
-            // After animation completes
-            setTimeout(() => {
-                videoSection.classList.remove('animating');
-                videoSection.classList.add('mini-player');
-                isMiniMode = true;
-                isAnimating = false;
-
-                // Update button visibility
-                minimizeBtn.style.display = 'flex';
-                expandBtn.style.display = 'none';
-            }, 500);
+        // Linear interpolation
+        function lerp(start, end, progress) {
+            return start + (end - start) * progress;
         }
 
-        // FLIP Animation: Exit mini mode
-        function exitMiniMode() {
-            if (!isMiniMode || isClosed || isAnimating) return;
-            isAnimating = true;
+        // Main scroll handler - updates video position based on scroll
+        function updateVideoPosition() {
+            if (!videoSection || !originalPosition || isClosed) return;
 
-            // FIRST: Capture current mini position
-            const firstRect = videoSection.getBoundingClientRect();
+            const scrollY = window.scrollY;
+            const viewportHeight = window.innerHeight;
 
-            // Calculate where the video should return to
-            // Use the placeholder's position as reference
-            const placeholderRect = videoPlaceholder.getBoundingClientRect();
+            // Calculate when animation should start and end
+            // Start: when video top reaches 80% of viewport from top
+            // End: when video would be 200px above viewport
+            const animationStart = originalPosition.top - viewportHeight * 0.8;
+            const animationEnd = originalPosition.top - 100;
+            const animationDistance = animationEnd - animationStart;
 
-            // Target position (where video originally was)
-            const targetRect = {
-                top: placeholderRect.top,
-                left: placeholderRect.left,
-                width: placeholderRect.width
-            };
+            // Calculate progress (0 = at start, 1 = fully mini)
+            let progress = 0;
+            if (scrollY > animationStart) {
+                progress = Math.min(1, Math.max(0, (scrollY - animationStart) / animationDistance));
+            }
 
-            // Keep it fixed at current position
-            videoSection.classList.remove('mini-player');
+            // Apply easing for smoother feel
+            const easedProgress = easeOutCubic(progress);
+
+            if (progress <= 0) {
+                // Video in original position - reset all styles
+                if (scrollAnimationActive) {
+                    videoSection.style.position = '';
+                    videoSection.style.top = '';
+                    videoSection.style.left = '';
+                    videoSection.style.width = '';
+                    videoSection.style.borderRadius = '';
+                    videoSection.style.boxShadow = '';
+                    videoSection.style.zIndex = '';
+                    videoSection.classList.remove('mini-player');
+                    videoPlaceholder.classList.remove('visible');
+                    minimizeBtn.style.display = 'none';
+                    expandBtn.style.display = 'none';
+                    scrollAnimationActive = false;
+                }
+                return;
+            }
+
+            // Animation is active
+            if (!scrollAnimationActive) {
+                scrollAnimationActive = true;
+                videoPlaceholder.classList.add('visible');
+            }
+
+            const mini = getMiniPosition();
+
+            // Calculate current position based on scroll progress
+            // Start position: where video would be if it scrolled normally
+            const startTop = originalPosition.top - scrollY;
+            const startLeft = originalPosition.left;
+            const startWidth = originalPosition.width;
+
+            // Interpolate all values
+            const currentTop = lerp(startTop, mini.top, easedProgress);
+            const currentLeft = lerp(startLeft, mini.left, easedProgress);
+            const currentWidth = lerp(startWidth, mini.width, easedProgress);
+            const currentRadius = lerp(0, 12, easedProgress);
+            const shadowOpacity = lerp(0, 0.5, easedProgress);
+
+            // Apply styles
             videoSection.style.position = 'fixed';
-            videoSection.style.top = firstRect.top + 'px';
-            videoSection.style.left = firstRect.left + 'px';
-            videoSection.style.width = firstRect.width + 'px';
+            videoSection.style.top = currentTop + 'px';
+            videoSection.style.left = currentLeft + 'px';
+            videoSection.style.width = currentWidth + 'px';
+            videoSection.style.borderRadius = currentRadius + 'px';
+            videoSection.style.boxShadow = `0 ${20 * easedProgress}px ${60 * easedProgress}px rgba(0, 0, 0, ${shadowOpacity}), 0 0 0 ${easedProgress}px rgba(255, 255, 255, 0.08)`;
+            videoSection.style.zIndex = '999';
 
-            // Force reflow
-            videoSection.offsetHeight;
-
-            // Add transition
-            videoSection.classList.add('animating');
-
-            // PLAY: Animate back to original position
-            requestAnimationFrame(() => {
-                videoSection.style.top = targetRect.top + 'px';
-                videoSection.style.left = targetRect.left + 'px';
-                videoSection.style.width = targetRect.width + 'px';
-                videoSection.style.borderRadius = '0';
-                videoSection.style.boxShadow = 'none';
-            });
-
-            // After animation completes
-            setTimeout(() => {
-                // Reset all inline styles
-                videoSection.classList.remove('animating');
-                videoSection.style.position = '';
-                videoSection.style.top = '';
-                videoSection.style.left = '';
-                videoSection.style.width = '';
-                videoSection.style.margin = '';
-                videoSection.style.borderRadius = '';
-                videoSection.style.boxShadow = '';
-
-                videoPlaceholder.classList.remove('visible');
-
-                isMiniMode = false;
-                isMinimized = false;
-                isAnimating = false;
-
-                // Reset button visibility
+            // Show controls when mostly mini
+            if (easedProgress > 0.8) {
+                if (!videoSection.classList.contains('mini-player')) {
+                    videoSection.classList.add('mini-player');
+                    minimizeBtn.style.display = 'flex';
+                }
+            } else {
+                videoSection.classList.remove('mini-player');
                 minimizeBtn.style.display = 'none';
                 expandBtn.style.display = 'none';
-            }, 500);
+            }
         }
 
-        // Set up Intersection Observer
-        const observerOptions = {
-            root: null,
-            rootMargin: '-80px 0px 0px 0px',
-            threshold: 0
-        };
-
-        const videoObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (isClosed || isAnimating) return;
-
-                if (!entry.isIntersecting && !isMiniMode) {
-                    enterMiniMode();
-                } else if (entry.isIntersecting && isMiniMode) {
-                    exitMiniMode();
-                }
-            });
-        }, observerOptions);
-
-        // Observe the hero section
-        const heroSection = document.querySelector('.hero');
-        if (heroSection) {
-            videoObserver.observe(heroSection);
-        }
-
+        // Toggle minimized state (collapse video to just header)
         function toggleMinimized() {
             isMinimized = !isMinimized;
             videoSection.classList.toggle('minimized', isMinimized);
-
-            // Toggle button icons
             minimizeBtn.style.display = isMinimized ? 'none' : 'flex';
             expandBtn.style.display = isMinimized ? 'flex' : 'none';
         }
 
+        // Close video completely
         function closeVideo() {
             isClosed = true;
-
-            // Animate out
             videoSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
             videoSection.style.transform = 'scale(0.9)';
             videoSection.style.opacity = '0';
@@ -2108,22 +2062,42 @@
             }, 300);
         }
 
+        // Return video to original position
         function returnVideoToOriginal() {
-            if (!isMiniMode) return;
-
-            // Scroll to the top where the video should be
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
             });
-
-            // Exit mini mode after scroll starts
-            setTimeout(() => {
-                exitMiniMode();
-            }, 300);
         }
 
-        // Event listeners
+        // Set up scroll listener with requestAnimationFrame for smooth updates
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    updateVideoPosition();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+
+        // Capture position after page loads
+        window.addEventListener('load', () => {
+            setTimeout(captureOriginalPosition, 100);
+        });
+
+        // Recapture on resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                captureOriginalPosition();
+                updateVideoPosition();
+            }, 100);
+        });
+
+        // Event listeners for controls
         if (minimizeBtn) {
             minimizeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -2154,25 +2128,14 @@
         if (videoHeader) {
             videoHeader.addEventListener('click', (e) => {
                 if (e.target.closest('.video-control-btn')) return;
-                if (isMiniMode && isMinimized) {
+                if (scrollAnimationActive && isMinimized) {
                     toggleMinimized();
                 }
             });
         }
 
-        // Handle window resize
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                if (isMiniMode && !isAnimating) {
-                    const miniPos = getMiniPosition();
-                    videoSection.style.top = miniPos.top + 'px';
-                    videoSection.style.left = miniPos.left + 'px';
-                    videoSection.style.width = miniPos.width + 'px';
-                }
-            }, 100);
-        });
+        // Initial position capture
+        captureOriginalPosition();
     </script>
 </body>
 </html>
