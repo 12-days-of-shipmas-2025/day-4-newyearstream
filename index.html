@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYE 2026 Global Fireworks Timeline</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0c0c0f;
+            --bg-card: #151519;
+            --bg-elevated: #1c1c22;
+            --gold: #e8c547;
+            --gold-dim: #a18832;
+            --cyan: #4ae8e8;
+            --magenta: #e84a8a;
+            --white: #f5f5f7;
+            --white-dim: rgba(245, 245, 247, 0.5);
+            --completed: var(--cyan);
+            --live: var(--gold);
+            --upcoming: var(--magenta);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-dark);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Grain texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Timeline Header - Fixed */
+        .timeline-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: var(--bg-dark);
+            border-bottom: 1px solid var(--bg-elevated);
+        }
+
+        /* Header Title Bar */
+        .header-title-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            background: linear-gradient(90deg, var(--bg-dark) 0%, var(--bg-card) 50%, var(--bg-dark) 100%);
+            border-bottom: 1px solid var(--bg-elevated);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-brand h1 {
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            font-weight: 400;
+            font-style: italic;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .header-brand h1 span {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--magenta) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-time {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .header-time-value {
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(1.25rem, 3vw, 2rem);
+            font-style: italic;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .header-time-zone {
+            font-size: 0.6rem;
+            color: var(--white-dim);
+            letter-spacing: 0.1em;
+            margin-top: 0.25rem;
+        }
+
+        /* Live Video Section - In main content */
+        .live-video-section {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--bg-elevated);
+            margin-bottom: 3rem;
+            overflow: hidden;
+        }
+
+        .live-video-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff0000, var(--gold), var(--magenta));
+            z-index: 2;
+        }
+
+        .video-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: var(--bg-dark);
+            border-bottom: 1px solid var(--bg-elevated);
+        }
+
+        .video-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #ff0000;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 0.35rem 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .live-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .video-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--white);
+        }
+
+        .video-source {
+            font-size: 0.7rem;
+            color: var(--white-dim);
+            letter-spacing: 0.05em;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Mini Player Mode - Fluid Animation */
+        .live-video-section {
+            transform-origin: top left;
+            will-change: transform, width, height, top, left;
+        }
+
+        .live-video-section.animating {
+            position: fixed !important;
+            z-index: 999;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-radius 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .live-video-section.mini-player {
+            position: fixed;
+            z-index: 999;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(255, 255, 255, 0.08),
+                        0 0 30px rgba(232, 197, 71, 0.1);
+            overflow: hidden;
+        }
+
+        .live-video-section.mini-player .video-header {
+            padding: 0.6rem 1rem;
+            background: linear-gradient(180deg, rgba(21, 21, 25, 0.98), rgba(21, 21, 25, 0.95));
+            backdrop-filter: blur(10px);
+        }
+
+        .live-video-section.mini-player .video-title {
+            font-size: 0.85rem;
+        }
+
+        .live-video-section.mini-player .video-source {
+            font-size: 0.6rem;
+        }
+
+        .live-video-section.mini-player .live-badge {
+            font-size: 0.55rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .live-video-section.mini-player .live-badge::before {
+            width: 5px;
+            height: 5px;
+        }
+
+        /* Minimized state (collapsed to just the header) */
+        .live-video-section.mini-player.minimized .video-container {
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.2s ease;
+        }
+
+        .live-video-section.mini-player:not(.minimized) .video-container {
+            max-height: 300px;
+            opacity: 1;
+            transition: max-height 0.3s ease, opacity 0.3s ease 0.1s;
+        }
+
+        .live-video-section.mini-player.minimized .video-header {
+            border-bottom: none;
+            border-radius: 12px;
+        }
+
+        /* Video controls */
+        .video-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .video-control-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: rgba(28, 28, 34, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--white-dim);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .video-control-btn:hover {
+            background: rgba(232, 197, 71, 0.2);
+            color: var(--gold);
+            border-color: var(--gold);
+            transform: scale(1.05);
+        }
+
+        .mini-player .video-control-btn {
+            display: flex;
+        }
+
+        .video-control-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Placeholder when video is in mini mode */
+        .video-placeholder {
+            display: none;
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated));
+            border: 1px dashed rgba(232, 197, 71, 0.3);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.5;
+        }
+
+        .video-placeholder.visible {
+            display: block;
+            animation: fadeInPlaceholder 0.4s ease;
+        }
+
+        @keyframes fadeInPlaceholder {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .video-placeholder p {
+            color: var(--white-dim);
+            font-size: 0.85rem;
+        }
+
+        .video-placeholder button {
+            margin-top: 1rem;
+            padding: 0.75rem 2rem;
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-family: inherit;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .video-placeholder button:hover {
+            background: var(--gold);
+            color: var(--bg-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(232, 197, 71, 0.3);
+        }
+
+        /* Mobile adjustments for mini player */
+        @media (max-width: 600px) {
+            .live-video-section.mini-player {
+                width: calc(100% - 2rem) !important;
+                left: 1rem !important;
+                right: auto !important;
+                bottom: 1rem !important;
+            }
+        }
+
+        .current-time-display {
+            display: none;
+        }
+
+        .current-time-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--white-dim);
+            margin-bottom: 0.25rem;
+        }
+
+        .current-time-value {
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-style: italic;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .timezone-label {
+            font-size: 0.7rem;
+            color: var(--white-dim);
+            margin-top: 0.25rem;
+        }
+
+        /* Timeline Scrubber */
+        .timeline-scrubber {
+            position: relative;
+            padding: 0.5rem 0;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--bg-elevated);
+        }
+
+        .timeline-track-container {
+            position: relative;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            cursor: grab;
+            padding: 0.5rem 0;
+        }
+
+        .timeline-track-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .timeline-track-container:active {
+            cursor: grabbing;
+        }
+
+        .timeline-track {
+            display: flex;
+            align-items: center;
+            min-width: max-content;
+            padding: 0 calc(50vw - 100px);
+            position: relative;
+            height: 70px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                var(--bg-elevated) 10%,
+                var(--bg-elevated) 90%,
+                transparent 100%
+            );
+            transform: translateY(-50%);
+        }
+
+        .timeline-marker {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .timeline-marker:hover {
+            transform: scale(1.1);
+        }
+
+        .timeline-marker.active .marker-dot {
+            transform: scale(1.5);
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .marker-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            background: var(--bg-dark);
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .marker-dot.completed { color: var(--completed); background: var(--completed); }
+        .marker-dot.live {
+            color: var(--live);
+            background: var(--live);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        .marker-dot.upcoming { color: var(--upcoming); }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232, 197, 71, 0.5); }
+            50% { transform: scale(1.2); box-shadow: 0 0 20px rgba(232, 197, 71, 0.8); }
+        }
+
+        .marker-time {
+            font-size: 0.6rem;
+            color: var(--white-dim);
+            margin-top: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .marker-city {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+            white-space: nowrap;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .marker-city.completed { color: var(--completed); }
+        .marker-city.live { color: var(--live); }
+        .marker-city.upcoming { color: var(--upcoming); }
+
+        /* Stacked markers for multiple cities at same time */
+        .timeline-marker.stacked {
+            position: relative;
+        }
+
+        .timeline-marker.stacked .marker-dot {
+            position: relative;
+        }
+
+        .timeline-marker.stacked .marker-dot::before,
+        .timeline-marker.stacked .marker-dot::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            background: var(--bg-dark);
+        }
+
+        .timeline-marker.stacked .marker-dot::before {
+            top: -4px;
+            left: -4px;
+            z-index: -1;
+        }
+
+        .timeline-marker.stacked .marker-dot::after {
+            top: -8px;
+            left: -8px;
+            z-index: -2;
+            opacity: 0.5;
+        }
+
+        .marker-cities {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.15rem;
+            margin-top: 0.25rem;
+        }
+
+        .marker-cities .marker-city {
+            font-size: 0.6rem;
+            opacity: 0.8;
+        }
+
+        .marker-cities .marker-city:first-child {
+            font-size: 0.7rem;
+            font-weight: 600;
+            opacity: 1;
+        }
+
+        .marker-count {
+            font-size: 0.55rem;
+            color: var(--gold);
+            margin-top: 0.1rem;
+        }
+
+        /* Current time needle - FIXED in center */
+        .time-needle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            background: var(--gold);
+            z-index: 20;
+            pointer-events: none;
+            box-shadow: 0 0 15px var(--gold), 0 0 30px rgba(232, 197, 71, 0.3);
+        }
+
+        .time-needle::before {
+            content: 'NOW';
+            position: absolute;
+            top: -1.25rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 0.15em;
+            text-shadow: 0 0 10px rgba(232, 197, 71, 0.5);
+        }
+
+        .time-needle::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid var(--gold);
+            filter: drop-shadow(0 0 5px var(--gold));
+        }
+
+        /* Navigation hints */
+        .scroll-hint {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--white-dim);
+            opacity: 0.3;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .scroll-hint.left { left: 0.5rem; }
+        .scroll-hint.right { right: 0.5rem; }
+
+        .timeline-track-container:hover + .scroll-hint,
+        .timeline-track-container:hover ~ .scroll-hint {
+            opacity: 0.7;
+        }
+
+        /* Main content */
+        .main-content {
+            padding-top: 160px;
+            padding-bottom: 4rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 2rem 0 4rem;
+            border-bottom: 1px solid var(--bg-elevated);
+            margin-bottom: 3rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            padding: 0.5rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-family: 'Instrument Serif', serif;
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 400;
+            line-height: 0.95;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 span {
+            font-style: italic;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--magenta) 50%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 0.85rem;
+            color: var(--white-dim);
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.completed { background: var(--completed); }
+        .legend-dot.live { background: var(--live); }
+        .legend-dot.upcoming { background: var(--upcoming); }
+
+
+        /* Section headers */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 3rem 0 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--bg-elevated);
+        }
+
+        .section-header h2 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2rem;
+            font-weight: 400;
+        }
+
+        .section-header.completed h2 { color: var(--completed); }
+        .section-header.upcoming h2 { color: var(--upcoming); }
+
+        .section-count {
+            font-size: 0.7rem;
+            color: var(--white-dim);
+            border: 1px solid var(--bg-elevated);
+            padding: 0.25rem 0.75rem;
+        }
+
+        /* Cards grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--bg-elevated);
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 1.75rem;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+
+        .card:hover {
+            background: var(--bg-elevated);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .location {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.5rem;
+            font-style: italic;
+        }
+
+        .country {
+            font-size: 0.75rem;
+            color: var(--white-dim);
+            margin-top: 0.25rem;
+        }
+
+        .status-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.35rem 0.75rem;
+            border: 1px solid;
+        }
+
+        .status-badge.completed {
+            color: var(--completed);
+            border-color: var(--completed);
+        }
+
+        .status-badge.upcoming {
+            color: var(--upcoming);
+            border-color: var(--upcoming);
+        }
+
+        .status-badge.live {
+            color: var(--live);
+            border-color: var(--live);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .time-info {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .time-block {
+            background: var(--bg-dark);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .time-label {
+            color: var(--white-dim);
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .time-value {
+            color: var(--gold);
+            font-weight: 600;
+            margin-top: 0.125rem;
+        }
+
+        .description {
+            font-size: 0.8rem;
+            line-height: 1.7;
+            color: var(--white-dim);
+            margin: 1rem 0;
+        }
+
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+        }
+
+        .link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 0.875rem;
+            background: var(--bg-dark);
+            border: 1px solid transparent;
+            color: var(--white);
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .link:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .link-icon {
+            font-size: 1rem;
+        }
+
+        .link-type {
+            margin-left: auto;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--white-dim);
+        }
+
+        .note-box {
+            background: rgba(232, 74, 138, 0.1);
+            border-left: 2px solid var(--magenta);
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: var(--white-dim);
+        }
+
+        /* TV Guide section */
+        .tv-guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--bg-elevated);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+            border-top: 1px solid var(--bg-elevated);
+            margin-top: 4rem;
+        }
+
+        footer p {
+            font-size: 0.75rem;
+            color: var(--white-dim);
+            margin: 0.5rem 0;
+        }
+
+        .footer-year {
+            font-family: 'Instrument Serif', serif;
+            font-size: 3rem;
+            font-style: italic;
+            background: linear-gradient(135deg, var(--gold), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        /* Mobile */
+        @media (max-width: 900px) {
+            .header-title-bar {
+                padding: 0.75rem 1rem;
+            }
+
+            .main-content {
+                padding-top: 140px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header-title-bar {
+                padding: 0.5rem 1rem;
+            }
+
+            .header-brand h1 {
+                font-size: 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .legend {
+                gap: 1rem;
+            }
+
+            .time-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .timeline-marker {
+                padding: 0 0.6rem;
+            }
+
+            .marker-city {
+                font-size: 0.5rem;
+            }
+
+            .marker-time {
+                font-size: 0.5rem;
+            }
+
+            .main-content {
+                padding-top: 130px;
+            }
+
+            .hero h1 {
+                font-size: clamp(2rem, 8vw, 4rem);
+            }
+
+            .video-header {
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Header -->
+    <header class="timeline-header">
+        <!-- Title Bar -->
+        <div class="header-title-bar">
+            <div class="header-brand">
+                <h1>New Year's Eve <span>2026</span></h1>
+            </div>
+            <div class="header-time">
+                <div class="header-time-value" id="currentTime">--:--</div>
+                <div class="header-time-zone" id="timezoneLabel">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Timeline First -->
+        <div class="timeline-scrubber">
+            <div class="time-needle" id="timeNeedle"></div>
+            <div class="timeline-track-container" id="timelineContainer">
+                <div class="timeline-track" id="timelineTrack">
+                    <div class="timeline-line"></div>
+                </div>
+            </div>
+        </div>
+
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero -->
+            <section class="hero">
+                <div class="hero-badge">2025 &rarr; 2026</div>
+                <h1>New Year's Eve<br><span>Fireworks Worldwide</span></h1>
+                <p class="hero-subtitle">Scroll the timeline above to travel through time zones. Watch celebrations from Auckland to Las Vegas as the world welcomes 2026.</p>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot completed"></div>
+                        <span>Completed</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot live"></div>
+                        <span>Live Now</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot upcoming"></div>
+                        <span>Upcoming</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Stream -->
+            <section class="live-video-section" id="liveVideoSection">
+                <div class="video-header">
+                    <div class="video-header-left">
+                        <span class="live-badge">Live</span>
+                        <div>
+                            <div class="video-title">NYE 2026 Worldwide Coverage</div>
+                            <div class="video-source">BBC News</div>
+                        </div>
+                    </div>
+                    <div class="video-controls">
+                        <button class="video-control-btn" id="minimizeBtn" title="Minimize">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+                            </svg>
+                        </button>
+                        <button class="video-control-btn" id="expandBtn" title="Back to original" style="display: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                            </svg>
+                        </button>
+                        <button class="video-control-btn" id="closeVideoBtn" title="Close">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="video-container">
+                    <iframe
+                        src="https://www.youtube.com/embed/z04BjFdOUyg?autoplay=1&mute=1&rel=0&modestbranding=1&controls=1"
+                        title="NYE 2026 Live Stream"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </section>
+
+            <!-- Video Placeholder (shown when video is mini) -->
+            <div class="video-placeholder" id="videoPlaceholder">
+                <p>Live stream is playing in the corner</p>
+                <button id="returnVideoBtn">Return Video Here</button>
+            </div>
+
+            <!-- Completed Section -->
+            <div class="section-header completed">
+                <h2>Already Celebrated</h2>
+                <span class="section-count" id="completedCount">0 cities</span>
+            </div>
+
+            <div class="cards-grid" id="completedCards">
+                <!-- Cards will be inserted by JS based on current time -->
+            </div>
+
+            <!-- Upcoming Section -->
+            <div class="section-header upcoming">
+                <h2>Coming Up</h2>
+                <span class="section-count" id="upcomingCount">0 cities</span>
+            </div>
+
+            <div class="cards-grid" id="upcomingCards">
+                <!-- Cards will be inserted by JS -->
+            </div>
+
+            <!-- TV Guide -->
+            <div class="section-header">
+                <h2>US TV & Streaming Guide</h2>
+            </div>
+
+            <div class="tv-guide-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="location">ABC</div>
+                            <div class="country">Dick Clark's New Year's Rockin' Eve</div>
+                        </div>
+                    </div>
+                    <div class="time-info">
+                        <div class="time-block">
+                            <div class="time-label">Start Time</div>
+                            <div class="time-value">8:00 PM ET</div>
+                        </div>
+                    </div>
+                    <p class="description">Hosted by Ryan Seacrest & Rita Ora. Diana Ross headlines at 11:37 PM. 42 performers across NYC, Las Vegas, Chicago, and Puerto Rico.</p>
+                    <div class="links">
+                        <a href="https://abc.com" target="_blank" class="link">
+                            <span class="link-icon">TV</span>
+                            ABC.com
+                            <span class="link-type">Cable Login</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="location">CBS</div>
+                            <div class="country">Nashville's Big Bash</div>
+                        </div>
+                    </div>
+                    <div class="time-info">
+                        <div class="time-block">
+                            <div class="time-label">Start Time</div>
+                            <div class="time-value">8:00 PM ET</div>
+                        </div>
+                    </div>
+                    <p class="description">5 hours of country music! Jason Aldean, Lainey Wilson, Bailey Zimmerman headline. Includes the iconic Music Note Drop.</p>
+                    <div class="links">
+                        <a href="https://www.paramountplus.com" target="_blank" class="link">
+                            <span class="link-icon">TV</span>
+                            Paramount+
+                            <span class="link-type">Stream</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="location">CNN</div>
+                            <div class="country">NYE Live with Anderson Cooper</div>
+                        </div>
+                    </div>
+                    <div class="time-info">
+                        <div class="time-block">
+                            <div class="time-label">Start Time</div>
+                            <div class="time-value">8:00 PM ET</div>
+                        </div>
+                    </div>
+                    <p class="description">Anderson Cooper and Andy Cohen host from Times Square. Coverage of celebrations across multiple time zones.</p>
+                    <div class="links">
+                        <a href="https://www.cnn.com" target="_blank" class="link">
+                            <span class="link-icon">TV</span>
+                            CNN.com
+                            <span class="link-type">Live</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="location">NBC</div>
+                            <div class="country">A Toast to 2025!</div>
+                        </div>
+                    </div>
+                    <div class="time-info">
+                        <div class="time-block">
+                            <div class="time-label">Start Time</div>
+                            <div class="time-value">10:30 PM ET</div>
+                        </div>
+                    </div>
+                    <p class="description">Hosted by Hoda Kotb & Jenna Bush Hager. Features appearances from Lindsey Vonn, Johnny Weir, and stars from NBC/Peacock shows.</p>
+                    <div class="links">
+                        <a href="https://www.nbc.com" target="_blank" class="link">
+                            <span class="link-icon">TV</span>
+                            NBC.com
+                            <span class="link-type">Live</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-year">2026</div>
+        <p>Happy New Year!</p>
+        <p>All times approximate. Check official sources for exact schedules.</p>
+        <p>Last updated: December 31, 2025</p>
+    </footer>
+
+    <script>
+        // City data with UTC offsets for midnight (when midnight occurs in UTC terms)
+        // utcMidnight = Date when it's midnight in that city
+        const cities = [
+            {
+                id: 'auckland',
+                name: 'Auckland',
+                country: 'New Zealand',
+                flag: 'NZ',
+                utcOffset: 13, // NZDT
+                localTimeLabel: 'Midnight NZDT',
+                etLabel: '6:00 AM ET',
+                description: 'One of the first major cities to welcome 2026 with stunning fireworks and laser lights over Sky Tower and Auckland Harbour Bridge. A 5-minute pyrotechnic display with 3,500 fireworks.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'Watch Replay on FOX', type: 'Replay', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'sydney',
+                name: 'Sydney',
+                country: 'Australia',
+                flag: 'AU',
+                utcOffset: 11, // AEDT
+                localTimeLabel: 'Midnight AEDT',
+                etLabel: '8:00 AM ET',
+                description: 'World-famous fireworks over Sydney Harbour Bridge and Opera House. Features Calling Country fireworks at 9pm and midnight spectacular.',
+                links: [
+                    { url: 'https://www.sydneynewyearseve.com/live-stream', label: 'Sydney NYE Official', type: 'Official', icon: 'WEB' },
+                    { url: 'https://iview.abc.net.au', label: 'ABC iView (Australia)', type: 'Replay', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'tokyo',
+                name: 'Tokyo',
+                country: 'Japan',
+                flag: 'JP',
+                utcOffset: 9, // JST
+                localTimeLabel: 'Midnight JST',
+                etLabel: '10:00 AM ET',
+                description: '"Happy New Year Tokyo 2026" at Tokyo Metropolitan Government Building featuring projection mapping by Mika Ninagawa, Hatsune Miku performance.',
+                links: [
+                    { url: 'https://tokyo-nighttime-project.jp/en/countdown/', label: 'Tokyo Nighttime Project', type: 'Official', icon: 'WEB' }
+                ],
+                note: 'Japan focuses on projection mapping rather than traditional fireworks.'
+            },
+            {
+                id: 'seoul',
+                name: 'Seoul',
+                country: 'South Korea',
+                flag: 'KR',
+                utcOffset: 9, // KST
+                localTimeLabel: 'Midnight KST',
+                etLabel: '10:00 AM ET',
+                description: 'Spectacular fireworks over Lotte World Tower, South Korea\'s tallest building.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'Watch Replay on FOX', type: 'Replay', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'taipei',
+                name: 'Taipei 101',
+                country: 'Taiwan',
+                flag: 'TW',
+                utcOffset: 8, // CST
+                localTimeLabel: 'Midnight CST',
+                etLabel: '11:00 AM ET',
+                description: 'Famous fireworks launched from the iconic Taipei 101 skyscraper lighting up the entire city skyline.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'Watch Replay on FOX', type: 'Replay', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'hongkong',
+                name: 'Hong Kong',
+                country: 'China SAR',
+                flag: 'HK',
+                utcOffset: 8, // HKT
+                localTimeLabel: 'Midnight HKT',
+                etLabel: '11:00 AM ET',
+                description: 'Light show projections on 8 landmarks and live music by Air Supply in Central. Fireworks cancelled this year.',
+                links: [
+                    { url: 'https://www.discoverhongkong.com/eng/what-s-new/events/new-year-countdown.html', label: 'HK Tourism Board', type: 'Official', icon: 'WEB' }
+                ],
+                note: 'No fireworks this year - light show and concert alternative'
+            },
+            {
+                id: 'kualalumpur',
+                name: 'Kuala Lumpur',
+                country: 'Malaysia',
+                flag: 'MY',
+                utcOffset: 8, // MYT
+                localTimeLabel: 'Midnight MYT',
+                etLabel: '11:00 AM ET',
+                description: 'Fireworks illuminate the iconic Petronas Twin Towers in a stunning display.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'Watch Replay on FOX', type: 'Replay', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'bangkok',
+                name: 'Bangkok',
+                country: 'Thailand',
+                flag: 'TH',
+                utcOffset: 7, // ICT
+                localTimeLabel: 'Midnight ICT',
+                etLabel: '12:00 PM ET',
+                description: 'Spectacular fireworks display at Asiatique over the Chao Phraya River. One of Southeast Asia\'s biggest celebrations.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'Watch Replay on FOX', type: 'Replay', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'dubai',
+                name: 'Dubai',
+                country: 'UAE',
+                flag: 'AE',
+                utcOffset: 4, // GST
+                localTimeLabel: 'Midnight GST',
+                etLabel: '3:00 PM ET',
+                description: '9-minute "Beyond Dreams" show at Burj Khalifa with 15,600+ pyrotechnic elements, 200+ laser beams, and synchronized Dubai Fountain.',
+                links: [
+                    { url: 'https://mydubainewyear.emaar.com/en/', label: 'Emaar NYE Official', type: 'Official', icon: 'WEB' },
+                    { url: 'https://www.youtube.com/@emaardubai', label: 'Emaar Dubai YouTube', type: 'YouTube', icon: 'YT' }
+                ]
+            },
+            {
+                id: 'paris',
+                name: 'Paris',
+                country: 'France',
+                flag: 'FR',
+                utcOffset: 1, // CET
+                localTimeLabel: 'Midnight CET',
+                etLabel: '6:00 PM ET',
+                description: 'Video mapping show on Arc de Triomphe followed by 9-minute fireworks. Features 100% female playlist soundtrack.',
+                links: [
+                    { url: 'https://parisjetaime.com/eng/event/lightshow-firework-new-year-s-eve-paris-e325', label: 'Paris Tourism Official', type: 'Info', icon: 'WEB' },
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
+                ],
+                note: 'Best viewing: Champs-Élysées'
+            },
+            {
+                id: 'disneylandparis',
+                name: 'Disneyland Paris',
+                country: 'France',
+                flag: 'FR',
+                utcOffset: 1, // CET
+                localTimeLabel: 'Midnight CET',
+                etLabel: '6:00 PM ET',
+                description: 'Brand-new midnight fireworks show above Sleeping Beauty Castle. Extended park hours with DJ parties until 3AM.',
+                links: [
+                    { url: 'https://parade.com/news/disneyland-paris-new-years-eve-fireworks-live-stream-2026', label: 'DLP NYE Live Stream Info', type: 'Info', icon: 'WEB' }
+                ]
+            },
+            {
+                id: 'london',
+                name: 'London',
+                country: 'United Kingdom',
+                flag: 'GB',
+                utcOffset: 0, // GMT
+                localTimeLabel: 'Midnight GMT',
+                etLabel: '7:00 PM ET',
+                description: 'Famous fireworks along the River Thames, centered on the London Eye and Big Ben.',
+                links: [
+                    { url: 'https://www.bbc.co.uk/iplayer', label: 'BBC iPlayer (UK)', type: 'Live', icon: 'TV' },
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'azores',
+                name: 'Azores',
+                country: 'Portugal',
+                flag: 'PT',
+                utcOffset: -1, // AZOT
+                localTimeLabel: 'Midnight AZOT',
+                etLabel: '8:00 PM ET',
+                description: 'Ring in the New Year in the mid-Atlantic! Ponta Delgada hosts festivities with fireworks over the harbor.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'praia',
+                name: 'Praia',
+                country: 'Cape Verde',
+                flag: 'CV',
+                utcOffset: -1, // CVT
+                localTimeLabel: 'Midnight CVT',
+                etLabel: '8:00 PM ET',
+                description: 'Cape Verde celebrates with beach parties and fireworks along the Atlantic coast.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'southgeorgia',
+                name: 'South Georgia Island',
+                country: 'British Territory',
+                flag: 'GS',
+                utcOffset: -2, // GST
+                localTimeLabel: 'Midnight GST',
+                etLabel: '9:00 PM ET',
+                description: 'One of the world\'s most remote New Year celebrations among penguins and glaciers in the sub-Antarctic.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'rio',
+                name: 'Rio de Janeiro',
+                country: 'Brazil',
+                flag: 'BR',
+                utcOffset: -3, // BRT
+                localTimeLabel: 'Midnight BRT',
+                etLabel: '10:00 PM ET',
+                description: 'The world\'s biggest NYE party! Historic 12-minute fireworks from 19 barges, 1,200 drone show, 2.5+ million on Copacabana beach.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' },
+                    { url: 'https://g1.globo.com', label: 'Globo (Brazil)', type: 'Live', icon: 'TV' }
+                ],
+                note: 'Live shows: Gilberto Gil (8PM), João Gomes + Iza (12:12AM), DJ Alok (1:40AM)'
+            },
+            {
+                id: 'santiago',
+                name: 'Santiago',
+                country: 'Chile',
+                flag: 'CL',
+                utcOffset: -3, // CLST (Chile Summer Time)
+                localTimeLabel: 'Midnight CLST',
+                etLabel: '10:00 PM ET',
+                description: 'Santiago\'s New Year features massive fireworks from Torre Costanera and celebrations in Plaza Italia.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'santodomingo',
+                name: 'Santo Domingo',
+                country: 'Dominican Republic',
+                flag: 'DO',
+                utcOffset: -4, // AST
+                localTimeLabel: 'Midnight AST',
+                etLabel: '11:00 PM ET',
+                description: 'Fireworks light up the Malecón waterfront as the Dominican Republic rings in 2026 with merengue and bachata.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'caracas',
+                name: 'Caracas',
+                country: 'Venezuela',
+                flag: 'VE',
+                utcOffset: -4, // VET
+                localTimeLabel: 'Midnight VET',
+                etLabel: '11:00 PM ET',
+                description: 'Venezuela\'s capital celebrates with fireworks and traditional hallacas across the city.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'newyork',
+                name: 'New York',
+                country: 'USA',
+                flag: 'US',
+                utcOffset: -5, // EST
+                localTimeLabel: 'Midnight EST',
+                etLabel: 'Midnight ET',
+                description: 'The iconic Ball Drop! 122-year tradition with Diana Ross headlining. Ball drops twice - midnight, then relit in America250 design at 12:04 AM.',
+                links: [
+                    { url: 'https://www.timessquarenyc.org/nye/nye-live', label: 'Official Times Square Webcast', type: 'Free', icon: 'WEB' },
+                    { url: 'https://abc.com', label: 'ABC - Dick Clark\'s Rockin\' Eve', type: '8PM ET', icon: 'TV' },
+                    { url: 'https://www.earthcam.com/newyears/', label: 'EarthCam Times Square', type: 'Multi-cam', icon: 'CAM' }
+                ],
+                note: 'Performers: Diana Ross, Ciara, LE SSERAFIM, Tones And I, B.o.B'
+            },
+            {
+                id: 'nashville',
+                name: 'Nashville',
+                country: 'USA',
+                flag: 'US',
+                utcOffset: -6, // CST
+                localTimeLabel: 'Midnight CST',
+                etLabel: '1:00 AM ET',
+                description: 'Country music\'s biggest NYE party! Features the iconic Music Note Drop. Jason Aldean, Lainey Wilson, Keith Urban headline.',
+                links: [
+                    { url: 'https://www.cbs.com', label: 'CBS - Nashville\'s Big Bash', type: '8PM ET', icon: 'TV' },
+                    { url: 'https://www.paramountplus.com', label: 'Paramount+', type: 'Stream', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'denver',
+                name: 'Denver',
+                country: 'USA',
+                flag: 'US',
+                utcOffset: -7, // MST
+                localTimeLabel: 'Midnight MST',
+                etLabel: '2:00 AM ET',
+                description: 'The Mile High City rings in 2026 with fireworks over downtown and celebrations at 16th Street Mall.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'phoenix',
+                name: 'Phoenix',
+                country: 'USA',
+                flag: 'US',
+                utcOffset: -7, // MST (Arizona doesn't observe DST)
+                localTimeLabel: 'Midnight MST',
+                etLabel: '2:00 AM ET',
+                description: 'Arizona\'s largest city celebrates with the Fiesta Bowl Block Party and fireworks downtown.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'lasvegas',
+                name: 'Las Vegas',
+                country: 'USA',
+                flag: 'US',
+                utcOffset: -8, // PST
+                localTimeLabel: 'Midnight PST',
+                etLabel: '3:00 AM ET',
+                description: 'Massive fireworks launched from multiple casino rooftops along the Strip, synchronized for an 8-minute spectacular.',
+                links: [
+                    { url: 'https://abc.com', label: 'ABC - Dick Clark\'s Rockin\' Eve', type: 'Live', icon: 'TV' }
+                ],
+                note: 'Hosts: Rob Gronkowski & Julianne Hough broadcasting from Vegas'
+            },
+            {
+                id: 'disneyworld',
+                name: 'Walt Disney World',
+                country: 'Orlando, USA',
+                flag: 'US',
+                utcOffset: -5, // EST
+                localTimeLabel: '11:50 PM ET',
+                etLabel: '11:50 PM ET',
+                description: 'Fantasy in the Sky fireworks at Magic Kingdom and special displays over World Showcase Lagoon at EPCOT.',
+                links: [
+                    { url: 'https://parade.com/news/walt-disney-world-new-years-eve-fireworks-live-stream-magic-kingdom-epcot-2026', label: 'Disney NYE Live Stream Info', type: 'Info', icon: 'WEB' }
+                ]
+            }
+        ];
+
+        // Calculate midnight time for each city (when it becomes Jan 1, 2026 in that city)
+        function getMidnightUTC(utcOffset) {
+            // Midnight on Jan 1, 2026 in a city with UTC+X offset
+            // means it's (24 - X) hours into Dec 31, 2025 UTC
+            const jan1_2026_utc = new Date(Date.UTC(2026, 0, 1, 0, 0, 0));
+            return new Date(jan1_2026_utc.getTime() - (utcOffset * 60 * 60 * 1000));
+        }
+
+        // Get city status
+        function getCityStatus(city, now) {
+            const midnightTime = getMidnightUTC(city.utcOffset);
+            const diff = now - midnightTime;
+
+            // Within 30 minutes before or after midnight = live
+            if (Math.abs(diff) < 30 * 60 * 1000) {
+                return 'live';
+            }
+            // After midnight = completed
+            if (diff > 0) {
+                return 'completed';
+            }
+            // Before midnight = upcoming
+            return 'upcoming';
+        }
+
+        // Format time
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        // Create card HTML
+        function createCard(city, status) {
+            const noteHtml = city.note ? `<div class="note-box">${city.note}</div>` : '';
+            const linksHtml = city.links.map(link => `
+                <a href="${link.url}" target="_blank" class="link">
+                    <span class="link-icon">${link.icon}</span>
+                    ${link.label}
+                    <span class="link-type">${link.type}</span>
+                </a>
+            `).join('');
+
+            return `
+                <div class="card" id="card-${city.id}">
+                    <div class="card-header">
+                        <div>
+                            <div class="location">${city.name}</div>
+                            <div class="country">${city.country}</div>
+                        </div>
+                        <span class="status-badge ${status}">${status}</span>
+                    </div>
+                    <div class="time-info">
+                        <div class="time-block">
+                            <div class="time-label">Local</div>
+                            <div class="time-value">${city.localTimeLabel}</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time-label">US Eastern</div>
+                            <div class="time-value">${city.etLabel}</div>
+                        </div>
+                    </div>
+                    <p class="description">${city.description}</p>
+                    <div class="links">${linksHtml}</div>
+                    ${noteHtml}
+                </div>
+            `;
+        }
+
+        // Create timeline marker for a group of cities at same time
+        function createTimelineMarker(cityGroup, now) {
+            const firstCity = cityGroup[0];
+            const midnightTime = getMidnightUTC(firstCity.utcOffset);
+
+            // Get user's local time when it's midnight at this city
+            const userLocalTime = midnightTime.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            // Determine overall status (live > upcoming > completed priority for display)
+            let overallStatus = 'completed';
+            const statuses = cityGroup.map(c => getCityStatus(c, now));
+            if (statuses.includes('live')) overallStatus = 'live';
+            else if (statuses.includes('upcoming')) overallStatus = 'upcoming';
+
+            const isStacked = cityGroup.length > 1;
+            const cityIds = cityGroup.map(c => c.id).join(',');
+
+            if (isStacked) {
+                // Show first 2 cities, then count
+                const displayCities = cityGroup.slice(0, 2);
+                const remaining = cityGroup.length - 2;
+
+                let citiesHtml = displayCities.map((c, i) => {
+                    const status = getCityStatus(c, now);
+                    return `<div class="marker-city ${status}">${c.name}</div>`;
+                }).join('');
+
+                if (remaining > 0) {
+                    citiesHtml += `<div class="marker-count">+${remaining} more</div>`;
+                }
+
+                return `
+                    <div class="timeline-marker stacked" data-cities="${cityIds}" data-midnight="${midnightTime.getTime()}">
+                        <div class="marker-dot ${overallStatus}"></div>
+                        <div class="marker-time">${userLocalTime}</div>
+                        <div class="marker-cities">${citiesHtml}</div>
+                    </div>
+                `;
+            } else {
+                const status = getCityStatus(firstCity, now);
+                return `
+                    <div class="timeline-marker" data-cities="${cityIds}" data-midnight="${midnightTime.getTime()}">
+                        <div class="marker-dot ${status}"></div>
+                        <div class="marker-time">${userLocalTime}</div>
+                        <div class="marker-city ${status}">${firstCity.name}</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Group cities by UTC offset
+        function groupCitiesByTime(sortedCities) {
+            const groups = [];
+            let currentGroup = [];
+            let currentOffset = null;
+
+            sortedCities.forEach(city => {
+                if (currentOffset === null || city.utcOffset === currentOffset) {
+                    currentGroup.push(city);
+                    currentOffset = city.utcOffset;
+                } else {
+                    if (currentGroup.length > 0) {
+                        groups.push(currentGroup);
+                    }
+                    currentGroup = [city];
+                    currentOffset = city.utcOffset;
+                }
+            });
+
+            if (currentGroup.length > 0) {
+                groups.push(currentGroup);
+            }
+
+            return groups;
+        }
+
+        // Update the display
+        function updateDisplay() {
+            const now = new Date();
+
+            // Update current time
+            document.getElementById('currentTime').textContent = formatTime(now);
+            document.getElementById('timezoneLabel').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+            // Sort cities by UTC offset (descending = earliest midnight first)
+            const sortedCities = [...cities].sort((a, b) => b.utcOffset - a.utcOffset);
+
+            // Group cities by time for timeline
+            const cityGroups = groupCitiesByTime(sortedCities);
+
+            // Build timeline with grouped markers
+            const timelineTrack = document.getElementById('timelineTrack');
+
+            let timelineHtml = '<div class="timeline-line"></div>';
+            cityGroups.forEach(group => {
+                timelineHtml += createTimelineMarker(group, now);
+            });
+            timelineTrack.innerHTML = timelineHtml;
+
+            // Position the needle after DOM has rendered
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    positionNeedle(now, sortedCities, cityGroups);
+                });
+            });
+
+            // Build cards
+            const completedCards = [];
+            const upcomingCards = [];
+
+            sortedCities.forEach(city => {
+                const status = getCityStatus(city, now);
+                const cardHtml = createCard(city, status);
+
+                if (status === 'completed' || status === 'live') {
+                    completedCards.push(cardHtml);
+                } else {
+                    upcomingCards.push(cardHtml);
+                }
+            });
+
+            document.getElementById('completedCards').innerHTML = completedCards.join('');
+            document.getElementById('upcomingCards').innerHTML = upcomingCards.join('');
+            document.getElementById('completedCount').textContent = `${completedCards.length} cities`;
+            document.getElementById('upcomingCount').textContent = `${upcomingCards.length} cities`;
+
+            // Add click handlers for timeline markers (now handles multiple cities)
+            document.querySelectorAll('.timeline-marker').forEach(marker => {
+                marker.addEventListener('click', () => {
+                    const cityIds = marker.dataset.cities.split(',');
+                    // Scroll to the first city's card
+                    const firstCard = document.getElementById(`card-${cityIds[0]}`);
+                    if (firstCard) {
+                        firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Highlight all cards in this group
+                        cityIds.forEach(id => {
+                            const card = document.getElementById(`card-${id}`);
+                            if (card) {
+                                card.style.outline = '2px solid var(--gold)';
+                                setTimeout(() => {
+                                    card.style.outline = 'none';
+                                }, 2000);
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
+        // Position timeline so current time is under the fixed needle
+        function positionNeedle(now, sortedCities, cityGroups) {
+            const container = document.getElementById('timelineContainer');
+            const markers = document.querySelectorAll('.timeline-marker');
+
+            if (markers.length < 2) return;
+
+            const nowTime = now.getTime();
+
+            // Find which two markers the current time falls between
+            let beforeMarker = null;
+            let afterMarker = null;
+            let beforeTime = null;
+            let afterTime = null;
+
+            for (let i = 0; i < markers.length; i++) {
+                const markerTime = parseInt(markers[i].dataset.midnight);
+
+                if (markerTime <= nowTime) {
+                    beforeMarker = markers[i];
+                    beforeTime = markerTime;
+                } else if (!afterMarker) {
+                    afterMarker = markers[i];
+                    afterTime = markerTime;
+                    break;
+                }
+            }
+
+            let currentTimeX;
+
+            if (!beforeMarker && afterMarker) {
+                // Before all markers - position at first marker
+                currentTimeX = afterMarker.offsetLeft + afterMarker.offsetWidth / 2;
+            } else if (beforeMarker && !afterMarker) {
+                // After all markers - position at last marker
+                currentTimeX = beforeMarker.offsetLeft + beforeMarker.offsetWidth / 2;
+            } else if (beforeMarker && afterMarker) {
+                // Between two markers - interpolate position
+                const beforeX = beforeMarker.offsetLeft + beforeMarker.offsetWidth / 2;
+                const afterX = afterMarker.offsetLeft + afterMarker.offsetWidth / 2;
+
+                const timeSpan = afterTime - beforeTime;
+                const progress = (nowTime - beforeTime) / timeSpan;
+
+                currentTimeX = beforeX + (afterX - beforeX) * progress;
+            } else {
+                // Fallback to first marker
+                currentTimeX = markers[0].offsetLeft + markers[0].offsetWidth / 2;
+            }
+
+            // Scroll so that position is centered (under the fixed needle)
+            const containerWidth = container.clientWidth;
+            const targetScroll = currentTimeX - containerWidth / 2;
+
+            // Only auto-scroll if user isn't dragging
+            if (!isDragging) {
+                container.scrollLeft = targetScroll;
+            }
+        }
+
+        // Drag to scroll
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+
+        const container = document.getElementById('timelineContainer');
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+            container.style.cursor = 'grabbing';
+        });
+
+        container.addEventListener('mouseleave', () => {
+            isDragging = false;
+            container.style.cursor = 'grab';
+        });
+
+        container.addEventListener('mouseup', () => {
+            isDragging = false;
+            container.style.cursor = 'grab';
+        });
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX) * 2;
+            container.scrollLeft = scrollLeft - walk;
+        });
+
+        // Touch support
+        container.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+        });
+
+        container.addEventListener('touchmove', (e) => {
+            const x = e.touches[0].pageX - container.offsetLeft;
+            const walk = (x - startX) * 2;
+            container.scrollLeft = scrollLeft - walk;
+        });
+
+        // Initialize and update every second
+        updateDisplay();
+        setInterval(updateDisplay, 1000);
+
+        // Initial scroll is handled by positionNeedle in updateDisplay
+        // The timeline will automatically scroll to center the current time
+
+        // ============================================
+        // Mini Player Functionality - FLIP Animation
+        // ============================================
+
+        const videoSection = document.getElementById('liveVideoSection');
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
+        const minimizeBtn = document.getElementById('minimizeBtn');
+        const expandBtn = document.getElementById('expandBtn');
+        const closeVideoBtn = document.getElementById('closeVideoBtn');
+        const returnVideoBtn = document.getElementById('returnVideoBtn');
+
+        let isMiniMode = false;
+        let isMinimized = false;
+        let isClosed = false;
+        let isAnimating = false;
+        let originalRect = null;
+
+        // Mini player target dimensions and position
+        const MINI_WIDTH = 380;
+        const MINI_MARGIN = 24;
+
+        // Store original position
+        function captureOriginalPosition() {
+            if (videoSection && !isMiniMode) {
+                originalRect = videoSection.getBoundingClientRect();
+                // Store scroll position too
+                originalRect.scrollY = window.scrollY;
+            }
+        }
+
+        // Calculate mini player position
+        function getMiniPosition() {
+            const aspectRatio = 16 / 9;
+            const headerHeight = 45; // approximate header height
+            const videoHeight = MINI_WIDTH / aspectRatio;
+
+            return {
+                width: MINI_WIDTH,
+                height: videoHeight + headerHeight,
+                left: window.innerWidth - MINI_WIDTH - MINI_MARGIN,
+                top: window.innerHeight - (videoHeight + headerHeight) - MINI_MARGIN
+            };
+        }
+
+        // FLIP Animation: Enter mini mode
+        function enterMiniMode() {
+            if (isMiniMode || isClosed || isAnimating) return;
+            isAnimating = true;
+
+            // FIRST: Capture current position
+            const firstRect = videoSection.getBoundingClientRect();
+            captureOriginalPosition();
+
+            // Show placeholder immediately
+            videoPlaceholder.classList.add('visible');
+
+            // LAST: Calculate final mini position
+            const miniPos = getMiniPosition();
+
+            // Make it fixed and set to current position
+            videoSection.style.position = 'fixed';
+            videoSection.style.top = firstRect.top + 'px';
+            videoSection.style.left = firstRect.left + 'px';
+            videoSection.style.width = firstRect.width + 'px';
+            videoSection.style.margin = '0';
+            videoSection.style.borderRadius = '0';
+            videoSection.style.boxShadow = 'none';
+
+            // Force reflow
+            videoSection.offsetHeight;
+
+            // Add transition class
+            videoSection.classList.add('animating');
+
+            // PLAY: Animate to mini position
+            requestAnimationFrame(() => {
+                videoSection.style.top = miniPos.top + 'px';
+                videoSection.style.left = miniPos.left + 'px';
+                videoSection.style.width = miniPos.width + 'px';
+                videoSection.style.borderRadius = '12px';
+                videoSection.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08)';
+            });
+
+            // After animation completes
+            setTimeout(() => {
+                videoSection.classList.remove('animating');
+                videoSection.classList.add('mini-player');
+                isMiniMode = true;
+                isAnimating = false;
+
+                // Update button visibility
+                minimizeBtn.style.display = 'flex';
+                expandBtn.style.display = 'none';
+            }, 500);
+        }
+
+        // FLIP Animation: Exit mini mode
+        function exitMiniMode() {
+            if (!isMiniMode || isClosed || isAnimating) return;
+            isAnimating = true;
+
+            // FIRST: Capture current mini position
+            const firstRect = videoSection.getBoundingClientRect();
+
+            // Calculate where the video should return to
+            // Use the placeholder's position as reference
+            const placeholderRect = videoPlaceholder.getBoundingClientRect();
+
+            // Target position (where video originally was)
+            const targetRect = {
+                top: placeholderRect.top,
+                left: placeholderRect.left,
+                width: placeholderRect.width
+            };
+
+            // Keep it fixed at current position
+            videoSection.classList.remove('mini-player');
+            videoSection.style.position = 'fixed';
+            videoSection.style.top = firstRect.top + 'px';
+            videoSection.style.left = firstRect.left + 'px';
+            videoSection.style.width = firstRect.width + 'px';
+
+            // Force reflow
+            videoSection.offsetHeight;
+
+            // Add transition
+            videoSection.classList.add('animating');
+
+            // PLAY: Animate back to original position
+            requestAnimationFrame(() => {
+                videoSection.style.top = targetRect.top + 'px';
+                videoSection.style.left = targetRect.left + 'px';
+                videoSection.style.width = targetRect.width + 'px';
+                videoSection.style.borderRadius = '0';
+                videoSection.style.boxShadow = 'none';
+            });
+
+            // After animation completes
+            setTimeout(() => {
+                // Reset all inline styles
+                videoSection.classList.remove('animating');
+                videoSection.style.position = '';
+                videoSection.style.top = '';
+                videoSection.style.left = '';
+                videoSection.style.width = '';
+                videoSection.style.margin = '';
+                videoSection.style.borderRadius = '';
+                videoSection.style.boxShadow = '';
+
+                videoPlaceholder.classList.remove('visible');
+
+                isMiniMode = false;
+                isMinimized = false;
+                isAnimating = false;
+
+                // Reset button visibility
+                minimizeBtn.style.display = 'none';
+                expandBtn.style.display = 'none';
+            }, 500);
+        }
+
+        // Set up Intersection Observer
+        const observerOptions = {
+            root: null,
+            rootMargin: '-80px 0px 0px 0px',
+            threshold: 0
+        };
+
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (isClosed || isAnimating) return;
+
+                if (!entry.isIntersecting && !isMiniMode) {
+                    enterMiniMode();
+                } else if (entry.isIntersecting && isMiniMode) {
+                    exitMiniMode();
+                }
+            });
+        }, observerOptions);
+
+        // Observe the hero section
+        const heroSection = document.querySelector('.hero');
+        if (heroSection) {
+            videoObserver.observe(heroSection);
+        }
+
+        function toggleMinimized() {
+            isMinimized = !isMinimized;
+            videoSection.classList.toggle('minimized', isMinimized);
+
+            // Toggle button icons
+            minimizeBtn.style.display = isMinimized ? 'none' : 'flex';
+            expandBtn.style.display = isMinimized ? 'flex' : 'none';
+        }
+
+        function closeVideo() {
+            isClosed = true;
+
+            // Animate out
+            videoSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+            videoSection.style.transform = 'scale(0.9)';
+            videoSection.style.opacity = '0';
+
+            setTimeout(() => {
+                videoSection.style.display = 'none';
+                videoPlaceholder.classList.remove('visible');
+            }, 300);
+        }
+
+        function returnVideoToOriginal() {
+            if (!isMiniMode) return;
+
+            // Scroll to the top where the video should be
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+
+            // Exit mini mode after scroll starts
+            setTimeout(() => {
+                exitMiniMode();
+            }, 300);
+        }
+
+        // Event listeners
+        if (minimizeBtn) {
+            minimizeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMinimized();
+            });
+        }
+
+        if (expandBtn) {
+            expandBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMinimized();
+            });
+        }
+
+        if (closeVideoBtn) {
+            closeVideoBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeVideo();
+            });
+        }
+
+        if (returnVideoBtn) {
+            returnVideoBtn.addEventListener('click', returnVideoToOriginal);
+        }
+
+        // Click header to expand if minimized
+        const videoHeader = videoSection?.querySelector('.video-header');
+        if (videoHeader) {
+            videoHeader.addEventListener('click', (e) => {
+                if (e.target.closest('.video-control-btn')) return;
+                if (isMiniMode && isMinimized) {
+                    toggleMinimized();
+                }
+            });
+        }
+
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (isMiniMode && !isAnimating) {
+                    const miniPos = getMiniPosition();
+                    videoSection.style.top = miniPos.top + 'px';
+                    videoSection.style.left = miniPos.left + 'px';
+                    videoSection.style.width = miniPos.width + 'px';
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
