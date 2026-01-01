@@ -160,7 +160,7 @@
             line-height: 1;
         }
 
-        .header-time-zone {
+        .header-time-label {
             font-size: 0.6rem;
             color: var(--white-dim);
             letter-spacing: 0.1em;
@@ -340,6 +340,68 @@
             width: 100%;
             height: 100%;
             border: none;
+        }
+
+        /* Video Ended Overlay */
+        .video-ended-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(21, 21, 25, 0.95), rgba(30, 30, 40, 0.95));
+            z-index: 5;
+        }
+
+        .video-ended-overlay.hidden {
+            display: none;
+        }
+
+        .video-ended-content {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .video-ended-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .video-ended-content h3 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .video-ended-content p {
+            color: var(--white-dim);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            max-width: 300px;
+        }
+
+        .watch-replay-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--magenta) 100%);
+            border: none;
+            border-radius: 2rem;
+            color: var(--bg);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .watch-replay-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(232, 197, 71, 0.3);
         }
 
         /* Mini Player Mode - Fluid Animation */
@@ -1164,7 +1226,9 @@
             </div>
             <div class="header-time">
                 <div class="header-time-value" id="currentTime">--:--</div>
-                <div class="header-time-zone" id="timezoneLabel">Loading...</div>
+                <div class="header-time-label">
+                    <span id="currentDate">--</span> · <span id="timezoneLabel">Loading...</span>
+                </div>
             </div>
         </div>
 
@@ -1233,10 +1297,24 @@
                             </button>
                         </div>
                     </div>
-                    <div class="video-container">
+                    <div class="video-container" id="videoContainer">
+                        <div class="video-ended-overlay" id="videoEndedOverlay">
+                            <div class="video-ended-content">
+                                <span class="video-ended-icon">🎆</span>
+                                <h3>NYE 2026 Has Concluded</h3>
+                                <p>The live coverage has ended. Use <strong>Recap Mode</strong> above to relive the celebrations!</p>
+                                <button class="watch-replay-btn" id="watchReplayBtn">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                    Search NYE 2026 Highlights
+                                </button>
+                            </div>
+                        </div>
                         <iframe
-                            src="https://www.youtube.com/embed/z04BjFdOUyg?autoplay=1&mute=1&rel=0&modestbranding=1&controls=1"
-                            title="NYE 2026 Live Stream"
+                            id="videoIframe"
+                            style="display: none;"
+                            title="NYE 2026 Replay"
                             frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             referrerpolicy="strict-origin-when-cross-origin"
@@ -1895,8 +1973,13 @@
         function updateDisplay() {
             const now = new Date();
 
-            // Update current time
+            // Update current time and date
             document.getElementById('currentTime').textContent = formatTime(now);
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
             document.getElementById('timezoneLabel').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
             // Sort cities by UTC offset (descending = earliest midnight first)
@@ -2085,6 +2168,16 @@
         const expandBtn = document.getElementById('expandBtn');
         const closeVideoBtn = document.getElementById('closeVideoBtn');
         const returnVideoBtn = document.getElementById('returnVideoBtn');
+        const watchReplayBtn = document.getElementById('watchReplayBtn');
+        const videoEndedOverlay = document.getElementById('videoEndedOverlay');
+        const videoIframe = document.getElementById('videoIframe');
+
+        // Handle watch replay button - opens YouTube search for NYE 2026 highlights
+        if (watchReplayBtn) {
+            watchReplayBtn.addEventListener('click', () => {
+                window.open('https://www.youtube.com/results?search_query=new+years+eve+2026+fireworks+celebration', '_blank');
+            });
+        }
 
         let isClosed = false;
         let isMinimized = false;
