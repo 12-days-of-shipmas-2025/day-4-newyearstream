@@ -1298,23 +1298,10 @@
                         </div>
                     </div>
                     <div class="video-container" id="videoContainer">
-                        <div class="video-ended-overlay" id="videoEndedOverlay">
-                            <div class="video-ended-content">
-                                <span class="video-ended-icon">🎆</span>
-                                <h3>NYE 2026 Has Concluded</h3>
-                                <p>The live coverage has ended. Use <strong>Recap Mode</strong> above to relive the celebrations!</p>
-                                <button class="watch-replay-btn" id="watchReplayBtn">
-                                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                                        <path d="M8 5v14l11-7z"/>
-                                    </svg>
-                                    Search NYE 2026 Highlights
-                                </button>
-                            </div>
-                        </div>
                         <iframe
                             id="videoIframe"
-                            style="display: none;"
-                            title="NYE 2026 Replay"
+                            src="https://www.youtube.com/embed/z04BjFdOUyg?rel=0&modestbranding=1&controls=1"
+                            title="NYE 2026 BBC Coverage (Replay)"
                             frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             referrerpolicy="strict-origin-when-cross-origin"
@@ -2168,17 +2155,6 @@
         const expandBtn = document.getElementById('expandBtn');
         const closeVideoBtn = document.getElementById('closeVideoBtn');
         const returnVideoBtn = document.getElementById('returnVideoBtn');
-        const watchReplayBtn = document.getElementById('watchReplayBtn');
-        const videoEndedOverlay = document.getElementById('videoEndedOverlay');
-        const videoIframe = document.getElementById('videoIframe');
-
-        // Handle watch replay button - opens YouTube search for NYE 2026 highlights
-        if (watchReplayBtn) {
-            watchReplayBtn.addEventListener('click', () => {
-                window.open('https://www.youtube.com/results?search_query=new+years+eve+2026+fireworks+celebration', '_blank');
-            });
-        }
-
         let isClosed = false;
         let isMinimized = false;
         let originalPosition = null;
