@@ -1300,7 +1300,7 @@
                     <div class="video-container" id="videoContainer">
                         <iframe
                             id="videoIframe"
-                            src="https://www.youtube.com/embed/z04BjFdOUyg?autoplay=1&mute=1&rel=0&modestbranding=1&controls=1"
+                            src="https://www.youtube.com/embed/z04BjFdOUyg?autoplay=1&mute=1&rel=0&modestbranding=1&controls=1&enablejsapi=1"
                             title="NYE 2026 BBC Coverage (Replay)"
                             frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -2679,19 +2679,34 @@
             document.body.classList.toggle('recap-mode', isRecapMode);
 
             if (isRecapMode) {
-                // Enter recap mode - scroll to the beginning (first marker)
+                // Enter recap mode - scroll to Dubai (first city in the BBC video)
                 const container = document.getElementById('timelineContainer');
                 const markers = document.querySelectorAll('.timeline-marker');
 
-                if (markers.length > 0) {
-                    const firstMarker = markers[0];
+                // Find Dubai marker (first city covered in the BBC replay video)
+                let dubaiMarker = null;
+                markers.forEach(marker => {
+                    const cities = marker.dataset.cities || '';
+                    if (cities.includes('dubai')) {
+                        dubaiMarker = marker;
+                    }
+                });
+
+                const targetMarker = dubaiMarker || markers[0];
+                if (targetMarker) {
                     const containerWidth = container.clientWidth;
-                    const targetScroll = firstMarker.offsetLeft - containerWidth / 2 + firstMarker.offsetWidth / 2;
+                    const targetScroll = targetMarker.offsetLeft - containerWidth / 2 + targetMarker.offsetWidth / 2;
 
                     container.scrollTo({
                         left: targetScroll,
                         behavior: 'smooth'
                     });
+                }
+
+                // Seek YouTube video to the beginning
+                const iframe = document.querySelector('.video-section iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage('{"event":"command","func":"seekTo","args":[0,true]}', '*');
                 }
 
                 // Stop real-time fireworks check
