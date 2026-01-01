@@ -202,31 +202,23 @@
             gap: 1rem;
         }
 
-        .live-badge {
+        .replay-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            background: #ff0000;
-            color: white;
+            background: rgba(100, 120, 140, 0.3);
+            color: #aabbcc;
             font-size: 0.65rem;
             font-weight: 700;
             letter-spacing: 0.08em;
             padding: 0.35rem 0.75rem;
             text-transform: uppercase;
+            border-radius: 3px;
         }
 
-        .live-badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: white;
-            border-radius: 50%;
-            animation: blink 1s ease-in-out infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        .replay-badge::before {
+            content: '↺';
+            font-size: 0.75rem;
         }
 
         .video-title {
@@ -298,14 +290,13 @@
             font-size: 0.6rem;
         }
 
-        .live-video-section.mini-player .live-badge {
+        .live-video-section.mini-player .replay-badge {
             font-size: 0.55rem;
             padding: 0.25rem 0.5rem;
         }
 
-        .live-video-section.mini-player .live-badge::before {
-            width: 5px;
-            height: 5px;
+        .live-video-section.mini-player .replay-badge::before {
+            font-size: 0.65rem;
         }
 
         /* Minimized state (collapsed to just the header) */
@@ -1112,10 +1103,10 @@
                 <section class="live-video-section" id="liveVideoSection">
                     <div class="video-header">
                         <div class="video-header-left">
-                            <span class="live-badge">Live</span>
+                            <span class="replay-badge">Replay</span>
                             <div>
                                 <div class="video-title">NYE 2026 Worldwide Coverage</div>
-                                <div class="video-source">BBC News</div>
+                                <div class="video-source">BBC News · Ended ~12pm UTC</div>
                             </div>
                         </div>
                         <div class="video-controls">
