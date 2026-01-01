@@ -366,17 +366,17 @@
 
         /* Placeholder when video is in mini mode */
         .video-placeholder {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated));
             border: 1px dashed rgba(232, 197, 71, 0.2);
             border-radius: 12px;
-            padding: 3rem 2rem;
             text-align: center;
             margin-bottom: 3rem;
             position: relative;
             overflow: hidden;
-            min-height: 200px;
-            aspect-ratio: 16/9;
+            min-height: 300px;
         }
 
         .video-placeholder::before {
@@ -2028,22 +2028,22 @@
 
         // Main scroll handler - updates video position based on scroll
         function updateVideoPosition() {
-            if (!videoSection || !originalPosition || isClosed) return;
+            if (!videoSection || isClosed) return;
 
-            const scrollY = window.scrollY;
+            // Get placeholder position - this is where the video should be when not animating
+            const placeholderRect = videoPlaceholder.getBoundingClientRect();
             const viewportHeight = window.innerHeight;
 
-            // Calculate when animation should start and end
-            // Start: when scrolled past the video's original top position
-            // End: when scrolled 300px past the start
-            const animationStart = originalPosition.top - viewportHeight + 200;
-            const animationEnd = animationStart + 300;
-            const animationDistance = animationEnd - animationStart;
+            // Calculate animation progress based on placeholder position
+            // When placeholder top is at bottom 30% of viewport, start animating
+            // When placeholder is above viewport, fully mini
+            const triggerPoint = viewportHeight * 0.7;
+            const endPoint = -100; // When placeholder is 100px above viewport
 
-            // Calculate progress (0 = at start, 1 = fully mini)
             let progress = 0;
-            if (scrollY > animationStart) {
-                progress = Math.min(1, Math.max(0, (scrollY - animationStart) / animationDistance));
+            if (placeholderRect.top < triggerPoint) {
+                const range = triggerPoint - endPoint;
+                progress = Math.min(1, Math.max(0, (triggerPoint - placeholderRect.top) / range));
             }
 
             // Use easeInOutCubic for smoother both directions
@@ -2051,34 +2051,34 @@
                 ? 4 * progress * progress * progress
                 : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-            const mini = getMiniPosition();
-
-            // Always keep placeholder visible to maintain layout
-            videoPlaceholder.classList.add('visible');
+            // Always keep placeholder content visible when animating
+            if (progress > 0) {
+                videoPlaceholder.classList.add('visible');
+            } else {
+                videoPlaceholder.classList.remove('visible');
+            }
 
             if (progress <= 0) {
                 // Video in original position - reset all styles
-                if (scrollAnimationActive) {
-                    videoSection.style.position = '';
-                    videoSection.style.top = '';
-                    videoSection.style.left = '';
-                    videoSection.style.width = '';
-                    videoSection.style.borderRadius = '';
-                    videoSection.style.boxShadow = '';
-                    videoSection.style.zIndex = '';
-                    videoSection.classList.remove('mini-player');
-                    minimizeBtn.style.display = 'none';
-                    expandBtn.style.display = 'none';
-                    scrollAnimationActive = false;
-                }
+                videoSection.style.position = '';
+                videoSection.style.top = '';
+                videoSection.style.left = '';
+                videoSection.style.width = '';
+                videoSection.style.borderRadius = '';
+                videoSection.style.boxShadow = '';
+                videoSection.style.zIndex = '';
+                videoSection.style.margin = '';
+                videoSection.classList.remove('mini-player');
+                minimizeBtn.style.display = 'none';
+                expandBtn.style.display = 'none';
+                scrollAnimationActive = false;
                 return;
             }
 
             // Animation is active
             scrollAnimationActive = true;
 
-            // Get placeholder position for accurate reference
-            const placeholderRect = videoPlaceholder.getBoundingClientRect();
+            const mini = getMiniPosition();
 
             // Start position: the placeholder's current position on screen
             const startTop = placeholderRect.top;
@@ -2097,6 +2097,7 @@
             videoSection.style.top = currentTop + 'px';
             videoSection.style.left = currentLeft + 'px';
             videoSection.style.width = currentWidth + 'px';
+            videoSection.style.margin = '0';
             videoSection.style.borderRadius = currentRadius + 'px';
             videoSection.style.boxShadow = `0 ${20 * easedProgress}px ${60 * easedProgress}px rgba(0, 0, 0, ${shadowOpacity}), 0 0 0 ${easedProgress}px rgba(255, 255, 255, 0.08)`;
             videoSection.style.zIndex = '999';
@@ -2151,9 +2152,23 @@
             }
         }, { passive: true });
 
+        // Sync placeholder size with video
+        function syncPlaceholderSize() {
+            if (!videoSection || !videoPlaceholder) return;
+            const rect = videoSection.getBoundingClientRect();
+            // Only sync when video is in normal flow (not fixed)
+            if (videoSection.style.position !== 'fixed') {
+                videoPlaceholder.style.height = rect.height + 'px';
+                videoPlaceholder.style.minHeight = rect.height + 'px';
+            }
+        }
+
         // Capture position after page loads
         window.addEventListener('load', () => {
-            setTimeout(captureOriginalPosition, 100);
+            setTimeout(() => {
+                captureOriginalPosition();
+                syncPlaceholderSize();
+            }, 100);
         });
 
         // Recapture on resize
@@ -2162,9 +2177,13 @@
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 captureOriginalPosition();
+                syncPlaceholderSize();
                 updateVideoPosition();
             }, 100);
         });
+
+        // Initial sync
+        syncPlaceholderSize();
 
         // Event listeners for controls
         if (minimizeBtn) {
