@@ -1897,40 +1897,17 @@
             if (statuses.includes('live')) overallStatus = 'live';
             else if (statuses.includes('upcoming')) overallStatus = 'upcoming';
 
-            const isStacked = cityGroup.length > 1;
             const cityIds = cityGroup.map(c => c.id).join(',');
+            const status = getCityStatus(firstCity, now);
 
-            if (isStacked) {
-                // Show first 2 cities, then count
-                const displayCities = cityGroup.slice(0, 2);
-                const remaining = cityGroup.length - 2;
-
-                let citiesHtml = displayCities.map((c, i) => {
-                    const status = getCityStatus(c, now);
-                    return `<div class="marker-city ${status}">${c.name}</div>`;
-                }).join('');
-
-                if (remaining > 0) {
-                    citiesHtml += `<div class="marker-count">+${remaining} more</div>`;
-                }
-
-                return `
-                    <div class="timeline-marker stacked" data-cities="${cityIds}" data-midnight="${midnightTime.getTime()}">
-                        <div class="marker-dot ${overallStatus}"></div>
-                        <div class="marker-time">${userLocalTime}</div>
-                        <div class="marker-cities">${citiesHtml}</div>
-                    </div>
-                `;
-            } else {
-                const status = getCityStatus(firstCity, now);
-                return `
-                    <div class="timeline-marker" data-cities="${cityIds}" data-midnight="${midnightTime.getTime()}">
-                        <div class="marker-dot ${status}"></div>
-                        <div class="marker-time">${userLocalTime}</div>
-                        <div class="marker-city ${status}">${firstCity.name}</div>
-                    </div>
-                `;
-            }
+            // Always show just one city per time slot for cleaner display
+            return `
+                <div class="timeline-marker" data-cities="${cityIds}" data-midnight="${midnightTime.getTime()}">
+                    <div class="marker-dot ${status}"></div>
+                    <div class="marker-time">${userLocalTime}</div>
+                    <div class="marker-city ${status}">${firstCity.name}</div>
+                </div>
+            `;
         }
 
         // Group cities by UTC offset
@@ -2622,30 +2599,72 @@
             }, 500);
         }
 
-        // Video timestamp mapping for BBC replay
-        // Dubai (UTC+4) = 0:00:00, London (UTC+0) = 4:38:18
-        const VIDEO_LONDON_TIMESTAMP = 4 * 3600 + 38 * 60 + 18; // 16698 seconds
-        const VIDEO_DUBAI_OFFSET = 4; // Dubai is UTC+4
-        const VIDEO_LONDON_OFFSET = 0; // London is UTC+0
+        // City-specific video mapping - individual fireworks videos for each city
+        const CITY_VIDEOS = {
+            // New Zealand / Pacific
+            'auckland': { id: 'THnuHwriM5g', source: 'Associated Press', title: 'Auckland NYE 2026' },
 
-        function getVideoTimestampForUtcOffset(utcOffset) {
-            // Linear interpolation between Dubai and London
-            // Dubai (UTC+4) = 0 seconds, London (UTC+0) = 16698 seconds
-            const secondsPerHour = VIDEO_LONDON_TIMESTAMP / (VIDEO_DUBAI_OFFSET - VIDEO_LONDON_OFFSET);
-            const videoTime = (VIDEO_DUBAI_OFFSET - utcOffset) * secondsPerHour;
+            // Australia
+            'sydney': { id: 'tF9uvP7kwsc', source: 'Global News', title: 'Sydney Harbour Fireworks 2026' },
 
-            // Clamp to valid video range (0 to ~20168 seconds for 5:36:08 video)
-            return Math.max(0, Math.min(20168, videoTime));
-        }
+            // Asia
+            'tokyo': { id: '72oC87t1WUo', source: 'Associated Press', title: 'Tokyo NYE 2026' },
+            'seoul': { id: '72oC87t1WUo', source: 'Associated Press', title: 'Tokyo/Seoul NYE 2026' },
+            'taipei': { id: 'tRS7OaVIGFM', source: 'Associated Press', title: 'Taipei 101 Fireworks 2026' },
+            'hongkong': { id: '4bkOP7P57gU', source: 'Associated Press', title: 'Hong Kong NYE 2026' },
+            'kualalumpur': { id: 'tF9uvP7kwsc', source: 'Global News', title: 'Sydney/KL NYE 2026' },
+            'bangkok': { id: 'tF9uvP7kwsc', source: 'Global News', title: 'Bangkok NYE 2026' },
 
-        function seekVideoToTimestamp(seconds) {
-            const iframe = document.querySelector('.video-section iframe');
-            if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage(JSON.stringify({
-                    event: 'command',
-                    func: 'seekTo',
-                    args: [seconds, true]
-                }), '*');
+            // Middle East
+            'dubai': { id: 'GKht6BZHtPQ', source: 'Associated Press', title: 'Dubai Burj Khalifa 2026' },
+
+            // Europe
+            'paris': { id: 'J84RBnOK2bo', source: 'Associated Press', title: 'Paris Arc de Triomphe 2026' },
+            'disneylandparis': { id: 'J84RBnOK2bo', source: 'Associated Press', title: 'Paris NYE 2026' },
+            'london': { id: 'FuzyX3q1crY', source: 'BBC', title: 'London Fireworks 2026' },
+
+            // Atlantic
+            'azores': { id: 'FuzyX3q1crY', source: 'BBC', title: 'London/Azores NYE 2026' },
+            'praia': { id: 'FuzyX3q1crY', source: 'BBC', title: 'London NYE 2026' },
+
+            // South America
+            'rio': { id: '63CIig6tQUc', source: 'Associated Press', title: 'Rio Copacabana 2026' },
+            'santiago': { id: '63CIig6tQUc', source: 'Associated Press', title: 'Rio/Santiago NYE 2026' },
+            'buenosaires': { id: '63CIig6tQUc', source: 'Associated Press', title: 'South America NYE 2026' },
+            'caracas': { id: 'ZFuvytV-cuA', source: 'Associated Press', title: 'Americas NYE 2026' },
+
+            // North America
+            'newyork': { id: 'ZFuvytV-cuA', source: 'Associated Press', title: 'Times Square Ball Drop 2026' },
+            'timessquare': { id: 'ZFuvytV-cuA', source: 'Associated Press', title: 'Times Square Ball Drop 2026' },
+            'denver': { id: 'LLo8bXWxCuU', source: 'Associated Press', title: 'Las Vegas NYE 2026' },
+            'phoenix': { id: 'LLo8bXWxCuU', source: 'Associated Press', title: 'Las Vegas NYE 2026' },
+            'lasvegas': { id: 'LLo8bXWxCuU', source: 'Associated Press', title: 'Las Vegas Strip Fireworks 2026' },
+            'disneyworld': { id: 'ZFuvytV-cuA', source: 'Associated Press', title: 'NYC/Disney NYE 2026' }
+        };
+
+        // Default video (fallback)
+        const DEFAULT_VIDEO = { id: 'THnuHwriM5g', source: 'Associated Press', title: 'NYE 2026 Worldwide' };
+
+        // Track current video to avoid unnecessary reloads
+        let currentVideoId = null;
+
+        function changeVideoForCity(cityId) {
+            const videoData = CITY_VIDEOS[cityId] || DEFAULT_VIDEO;
+
+            // Don't reload if same video
+            if (currentVideoId === videoData.id) return;
+            currentVideoId = videoData.id;
+
+            const iframe = document.getElementById('videoIframe');
+            if (iframe) {
+                // Update video source
+                iframe.src = `https://www.youtube.com/embed/${videoData.id}?autoplay=1&mute=1&rel=0&modestbranding=1&controls=1&enablejsapi=1`;
+
+                // Update video header
+                const titleEl = document.querySelector('.video-title');
+                const sourceEl = document.querySelector('.video-source');
+                if (titleEl) titleEl.textContent = videoData.title;
+                if (sourceEl) sourceEl.textContent = `${videoData.source} · Replay`;
             }
         }
 
@@ -2672,7 +2691,7 @@
                 }
             });
 
-            // If we're close to a marker (within 50px), update display and seek video
+            // If we're close to a marker (within 50px), update display and change video
             if (closestMarker && closestDistance < 50) {
                 if (lastTriggeredMarker !== closestMarker) {
                     lastTriggeredMarker = closestMarker;
@@ -2686,9 +2705,8 @@
                             document.getElementById('currentTime').textContent = '12:00 AM';
                             document.getElementById('timezoneLabel').textContent = `${city.name} • Midnight`;
 
-                            // Seek video to this city's timestamp
-                            const videoTime = getVideoTimestampForUtcOffset(city.utcOffset);
-                            seekVideoToTimestamp(videoTime);
+                            // Change video to this city's fireworks
+                            changeVideoForCity(cityId);
                         }
                     }
                 }
@@ -2708,20 +2726,20 @@
             document.body.classList.toggle('recap-mode', isRecapMode);
 
             if (isRecapMode) {
-                // Enter recap mode - scroll to Dubai (first city in the BBC video)
+                // Enter recap mode - scroll to Auckland (first city to celebrate)
                 const container = document.getElementById('timelineContainer');
                 const markers = document.querySelectorAll('.timeline-marker');
 
-                // Find Dubai marker (first city covered in the BBC replay video)
-                let dubaiMarker = null;
+                // Find Auckland marker (first city to ring in the new year)
+                let aucklandMarker = null;
                 markers.forEach(marker => {
                     const cities = marker.dataset.cities || '';
-                    if (cities.includes('dubai')) {
-                        dubaiMarker = marker;
+                    if (cities.includes('auckland')) {
+                        aucklandMarker = marker;
                     }
                 });
 
-                const targetMarker = dubaiMarker || markers[0];
+                const targetMarker = aucklandMarker || markers[0];
                 if (targetMarker) {
                     const containerWidth = container.clientWidth;
                     const targetScroll = targetMarker.offsetLeft - containerWidth / 2 + targetMarker.offsetWidth / 2;
@@ -2732,8 +2750,8 @@
                     });
                 }
 
-                // Seek YouTube video to the beginning (Dubai = start of BBC video)
-                seekVideoToTimestamp(0);
+                // Load Auckland's fireworks video
+                changeVideoForCity('auckland');
 
                 // Stop any active fireworks
                 stopRecapFireworks();
