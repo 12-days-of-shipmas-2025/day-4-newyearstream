@@ -2622,7 +2622,34 @@
             }, 500);
         }
 
-        // Check which marker is currently under the needle and trigger fireworks
+        // Video timestamp mapping for BBC replay
+        // Dubai (UTC+4) = 0:00:00, London (UTC+0) = 4:38:18
+        const VIDEO_LONDON_TIMESTAMP = 4 * 3600 + 38 * 60 + 18; // 16698 seconds
+        const VIDEO_DUBAI_OFFSET = 4; // Dubai is UTC+4
+        const VIDEO_LONDON_OFFSET = 0; // London is UTC+0
+
+        function getVideoTimestampForUtcOffset(utcOffset) {
+            // Linear interpolation between Dubai and London
+            // Dubai (UTC+4) = 0 seconds, London (UTC+0) = 16698 seconds
+            const secondsPerHour = VIDEO_LONDON_TIMESTAMP / (VIDEO_DUBAI_OFFSET - VIDEO_LONDON_OFFSET);
+            const videoTime = (VIDEO_DUBAI_OFFSET - utcOffset) * secondsPerHour;
+
+            // Clamp to valid video range (0 to ~20168 seconds for 5:36:08 video)
+            return Math.max(0, Math.min(20168, videoTime));
+        }
+
+        function seekVideoToTimestamp(seconds) {
+            const iframe = document.querySelector('.video-section iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage(JSON.stringify({
+                    event: 'command',
+                    func: 'seekTo',
+                    args: [seconds, true]
+                }), '*');
+            }
+        }
+
+        // Check which marker is currently under the needle and update video position
         function checkRecapPosition() {
             if (!isRecapMode) return;
 
@@ -2645,11 +2672,10 @@
                 }
             });
 
-            // If we're close to a marker (within 50px), trigger fireworks
+            // If we're close to a marker (within 50px), update display and seek video
             if (closestMarker && closestDistance < 50) {
                 if (lastTriggeredMarker !== closestMarker) {
                     lastTriggeredMarker = closestMarker;
-                    startRecapFireworks();
 
                     // Update the header time to show the city's midnight time
                     const cities = closestMarker.dataset.cities?.split(',') || [];
@@ -2659,13 +2685,16 @@
                         if (city) {
                             document.getElementById('currentTime').textContent = '12:00 AM';
                             document.getElementById('timezoneLabel').textContent = `${city.name} • Midnight`;
+
+                            // Seek video to this city's timestamp
+                            const videoTime = getVideoTimestampForUtcOffset(city.utcOffset);
+                            seekVideoToTimestamp(videoTime);
                         }
                     }
                 }
             } else {
                 if (lastTriggeredMarker !== null) {
                     lastTriggeredMarker = null;
-                    stopRecapFireworks();
                 }
             }
         }
@@ -2703,16 +2732,13 @@
                     });
                 }
 
-                // Seek YouTube video to the beginning
-                const iframe = document.querySelector('.video-section iframe');
-                if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage('{"event":"command","func":"seekTo","args":[0,true]}', '*');
-                }
+                // Seek YouTube video to the beginning (Dubai = start of BBC video)
+                seekVideoToTimestamp(0);
 
-                // Stop real-time fireworks check
+                // Stop any active fireworks
                 stopRecapFireworks();
 
-                // Start checking position for recap fireworks
+                // Start checking position for video scrubbing
                 checkRecapPosition();
             } else {
                 // Exit recap mode - return to real time
