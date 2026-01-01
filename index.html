@@ -3,7 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYE 2026 Global Fireworks Timeline</title>
+    <title>NYE 2026 Global Fireworks Timeline | Watch New Year Celebrations Worldwide</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Track New Year's Eve 2026 celebrations as they happen around the world. Watch live fireworks from Auckland to Las Vegas with our interactive global timeline.">
+    <meta name="keywords" content="New Year 2026, NYE 2026, fireworks, live stream, countdown, global celebrations, Times Square, Sydney, London, Dubai">
+    <meta name="author" content="New Year Stream">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://newyearstream.com/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://newyearstream.com/">
+    <meta property="og:title" content="NYE 2026 Global Fireworks Timeline">
+    <meta property="og:description" content="Watch New Year's Eve celebrations as they happen around the world. Live fireworks from Auckland to Las Vegas.">
+    <meta property="og:image" content="https://newyearstream.com/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="New Year Stream">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://newyearstream.com/">
+    <meta name="twitter:title" content="NYE 2026 Global Fireworks Timeline">
+    <meta name="twitter:description" content="Watch New Year's Eve celebrations as they happen around the world. Live fireworks from Auckland to Las Vegas.">
+    <meta name="twitter:image" content="https://newyearstream.com/og-image.png">
+
+    <!-- Favicon - Champagne Emoji -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍾</text></svg>">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#0c0c0f">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -51,6 +83,23 @@
             opacity: 0.03;
             pointer-events: none;
             z-index: 1000;
+        }
+
+        /* Fireworks canvas */
+        #fireworksCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #fireworksCanvas.active {
+            opacity: 1;
         }
 
         /* Timeline Header - Fixed */
@@ -996,6 +1045,9 @@
     </style>
 </head>
 <body>
+    <!-- Fireworks Canvas -->
+    <canvas id="fireworksCanvas"></canvas>
+
     <!-- Fixed Header -->
     <header class="timeline-header">
         <!-- Title Bar -->
