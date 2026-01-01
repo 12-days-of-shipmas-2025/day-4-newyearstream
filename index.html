@@ -87,7 +87,7 @@
             z-index: 1000;
         }
 
-        /* Fireworks canvas */
+        /* Fireworks canvas - behind content as atmospheric effect */
         #fireworksCanvas {
             position: fixed;
             top: 0;
@@ -95,13 +95,13 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 50;
+            z-index: 1;
             opacity: 0;
             transition: opacity 1s ease;
         }
 
         #fireworksCanvas.active {
-            opacity: 1;
+            opacity: 0.8;
         }
 
         /* Timeline Header - Fixed */
