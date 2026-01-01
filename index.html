@@ -2710,6 +2710,14 @@
 
         recapToggle.addEventListener('click', toggleRecapMode);
 
+        // Auto-enable recap mode since NYE 2026 has ended
+        // Start in recap mode by default - timeline begins at Auckland
+        setTimeout(() => {
+            if (!isRecapMode) {
+                toggleRecapMode();
+            }
+        }, 500); // Small delay to ensure DOM is ready
+
         // Listen for scroll events on timeline to check position in recap mode
         const timelineContainer = document.getElementById('timelineContainer');
         timelineContainer.addEventListener('scroll', () => {
