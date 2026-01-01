@@ -1805,6 +1805,9 @@
             }
         ];
 
+        // Make cities data globally accessible for recap mode
+        window.citiesData = cities;
+
         // Calculate midnight time for each city (when it becomes Jan 1, 2026 in that city)
         function getMidnightUTC(utcOffset) {
             // Midnight on Jan 1, 2026 in a city with UTC+X offset
@@ -2651,7 +2654,7 @@
                     const cities = closestMarker.dataset.cities?.split(',') || [];
                     if (cities.length > 0) {
                         const cityId = cities[0];
-                        const city = citiesData.find(c => c.id === cityId);
+                        const city = window.citiesData?.find(c => c.id === cityId);
                         if (city) {
                             document.getElementById('currentTime').textContent = '12:00 AM';
                             document.getElementById('timezoneLabel').textContent = `${city.name} • Midnight`;
