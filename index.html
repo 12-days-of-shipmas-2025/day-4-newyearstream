@@ -167,6 +167,98 @@
             margin-top: 0.25rem;
         }
 
+        /* Recap Mode Toggle */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recap-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--white-dim);
+            border-radius: 2rem;
+            color: var(--white-dim);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .recap-toggle:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .recap-toggle.active {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--magenta) 100%);
+            border-color: transparent;
+            color: var(--bg);
+        }
+
+        .recap-toggle svg {
+            transition: transform 0.3s ease;
+        }
+
+        .recap-toggle.active svg {
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        /* Recap Mode Banner */
+        .recap-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--magenta) 100%);
+            color: var(--bg);
+            text-align: center;
+            padding: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            z-index: 1001;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .recap-banner.visible {
+            transform: translateY(0);
+        }
+
+        body.recap-mode .timeline-header {
+            top: 2rem;
+        }
+
+        body.recap-mode .time-needle::after {
+            content: 'DRAG TO RELIVE';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.5rem;
+            color: var(--gold);
+            white-space: nowrap;
+            margin-top: 0.25rem;
+            letter-spacing: 0.1em;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         /* Live Video Section - In main content */
         .live-video-section {
             position: relative;
@@ -1049,12 +1141,26 @@
     <!-- Fireworks Canvas -->
     <canvas id="fireworksCanvas"></canvas>
 
+    <!-- Recap Mode Banner -->
+    <div class="recap-banner" id="recapBanner">
+        🎆 RECAP MODE — Drag the timeline to relive NYE 2026 celebrations worldwide
+    </div>
+
     <!-- Fixed Header -->
     <header class="timeline-header">
         <!-- Title Bar -->
         <div class="header-title-bar">
             <div class="header-brand">
                 <h1>New Year's Eve <span>2026</span></h1>
+            </div>
+            <div class="header-actions">
+                <button class="recap-toggle" id="recapToggle" title="Relive the celebrations">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                    </svg>
+                    <span>Recap</span>
+                </button>
             </div>
             <div class="header-time">
                 <div class="header-time-value" id="currentTime">--:--</div>
@@ -1912,8 +2018,8 @@
             const containerWidth = container.clientWidth;
             const targetScroll = currentTimeX - containerWidth / 2;
 
-            // Only auto-scroll if user isn't dragging
-            if (!isDragging) {
+            // Only auto-scroll if user isn't dragging and not in recap mode
+            if (!isDragging && !window.isRecapMode) {
                 container.scrollLeft = targetScroll;
             }
         }
@@ -2414,9 +2520,150 @@
             }
         }
 
-        // Check every 10 seconds
+        // Check every 10 seconds (only when not in recap mode)
         checkFireworksTime();
-        setInterval(checkFireworksTime, 10000);
+        setInterval(() => {
+            if (!isRecapMode) checkFireworksTime();
+        }, 10000);
+
+        // ============================================
+        // Recap Mode - Relive NYE 2026
+        // ============================================
+        window.isRecapMode = false;
+        let isRecapMode = window.isRecapMode;
+        const recapToggle = document.getElementById('recapToggle');
+        const recapBanner = document.getElementById('recapBanner');
+        let lastTriggeredMarker = null;
+
+        // Start fireworks for recap mode
+        function startRecapFireworks() {
+            if (!fireworksActive) {
+                fireworksActive = true;
+                fireworksCanvas.classList.add('active');
+                animateFireworks();
+            }
+        }
+
+        // Stop fireworks for recap mode
+        function stopRecapFireworks() {
+            fireworksActive = false;
+            fireworksCanvas.classList.remove('active');
+            setTimeout(() => {
+                fwCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+                fireworks = [];
+                particles = [];
+            }, 500);
+        }
+
+        // Check which marker is currently under the needle and trigger fireworks
+        function checkRecapPosition() {
+            if (!isRecapMode) return;
+
+            const container = document.getElementById('timelineContainer');
+            const markers = document.querySelectorAll('.timeline-marker');
+            const containerRect = container.getBoundingClientRect();
+            const needleX = containerRect.left + containerRect.width / 2;
+
+            let closestMarker = null;
+            let closestDistance = Infinity;
+
+            markers.forEach(marker => {
+                const markerRect = marker.getBoundingClientRect();
+                const markerCenter = markerRect.left + markerRect.width / 2;
+                const distance = Math.abs(markerCenter - needleX);
+
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestMarker = marker;
+                }
+            });
+
+            // If we're close to a marker (within 50px), trigger fireworks
+            if (closestMarker && closestDistance < 50) {
+                if (lastTriggeredMarker !== closestMarker) {
+                    lastTriggeredMarker = closestMarker;
+                    startRecapFireworks();
+
+                    // Update the header time to show the city's midnight time
+                    const cities = closestMarker.dataset.cities?.split(',') || [];
+                    if (cities.length > 0) {
+                        const cityId = cities[0];
+                        const city = citiesData.find(c => c.id === cityId);
+                        if (city) {
+                            document.getElementById('currentTime').textContent = '12:00 AM';
+                            document.getElementById('timezoneLabel').textContent = `${city.name} • Midnight`;
+                        }
+                    }
+                }
+            } else {
+                if (lastTriggeredMarker !== null) {
+                    lastTriggeredMarker = null;
+                    stopRecapFireworks();
+                }
+            }
+        }
+
+        // Toggle recap mode
+        function toggleRecapMode() {
+            isRecapMode = !isRecapMode;
+            window.isRecapMode = isRecapMode;
+            recapToggle.classList.toggle('active', isRecapMode);
+            recapBanner.classList.toggle('visible', isRecapMode);
+            document.body.classList.toggle('recap-mode', isRecapMode);
+
+            if (isRecapMode) {
+                // Enter recap mode - scroll to the beginning (first marker)
+                const container = document.getElementById('timelineContainer');
+                const markers = document.querySelectorAll('.timeline-marker');
+
+                if (markers.length > 0) {
+                    const firstMarker = markers[0];
+                    const containerWidth = container.clientWidth;
+                    const targetScroll = firstMarker.offsetLeft - containerWidth / 2 + firstMarker.offsetWidth / 2;
+
+                    container.scrollTo({
+                        left: targetScroll,
+                        behavior: 'smooth'
+                    });
+                }
+
+                // Stop real-time fireworks check
+                stopRecapFireworks();
+
+                // Start checking position for recap fireworks
+                checkRecapPosition();
+            } else {
+                // Exit recap mode - return to real time
+                stopRecapFireworks();
+                lastTriggeredMarker = null;
+
+                // Let the normal update cycle take over
+                updateDisplay();
+            }
+        }
+
+        recapToggle.addEventListener('click', toggleRecapMode);
+
+        // Listen for scroll events on timeline to check position in recap mode
+        const timelineContainer = document.getElementById('timelineContainer');
+        timelineContainer.addEventListener('scroll', () => {
+            if (isRecapMode) {
+                checkRecapPosition();
+            }
+        });
+
+        // Also check on drag events
+        timelineContainer.addEventListener('mousemove', () => {
+            if (isRecapMode && isDragging) {
+                checkRecapPosition();
+            }
+        });
+
+        timelineContainer.addEventListener('touchmove', () => {
+            if (isRecapMode) {
+                checkRecapPosition();
+            }
+        });
     </script>
 </body>
 </html>
