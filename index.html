@@ -2240,21 +2240,15 @@
                 videoPlaceholder.style.minHeight = wrapperHeight + 'px';
             } else {
                 videoPlaceholder.classList.remove('visible');
-                videoPlaceholder.style.minHeight = '';
+                videoPlaceholder.removeAttribute('style');
             }
 
             // When not animating (progress 0), video stays in normal document flow
             if (progress <= 0) {
-                videoSection.style.position = '';
-                videoSection.style.top = '';
-                videoSection.style.left = '';
-                videoSection.style.width = '';
-                videoSection.style.borderRadius = '';
-                videoSection.style.boxShadow = '';
-                videoSection.style.zIndex = '';
-                videoSection.style.margin = '';
-                videoSection.style.transform = '';
+                // Clear ALL inline styles to return to pure CSS state
+                videoSection.removeAttribute('style');
                 videoSection.classList.remove('mini-player');
+                videoSection.classList.remove('animating');
                 minimizeBtn.style.display = 'none';
                 expandBtn.style.display = 'none';
                 scrollAnimationActive = false;
