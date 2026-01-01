@@ -2220,9 +2220,10 @@
                 wrapperHeight = wrapperRect.height;
             }
 
-            // Animation triggers when wrapper top goes above 60% of viewport
+            // Animation triggers when video top goes behind the header/timeline (~140px)
             // and completes when wrapper is 200px above viewport
-            const startThreshold = viewportHeight * 0.6;
+            const headerHeight = 140; // Height of header + timeline
+            const startThreshold = headerHeight;
             const endThreshold = -200;
 
             let progress = 0;
