@@ -29,8 +29,10 @@
     <meta name="twitter:description" content="Watch New Year's Eve celebrations as they happen around the world. Live fireworks from Auckland to Las Vegas.">
     <meta name="twitter:image" content="https://newyearstream.com/og-image.png">
 
-    <!-- Favicon - Champagne Emoji -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍾</text></svg>">
+    <!-- Favicon - Animated Firework -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cstyle%3E@keyframes burst%7B0%25,100%25%7Bopacity:1;transform:scale(1)%7D50%25%7Bopacity:.6;transform:scale(.8)%7D%7D@keyframes spark%7B0%25%7Bopacity:0;transform:translateY(0)%7D20%25%7Bopacity:1%7D100%25%7Bopacity:0;transform:translateY(-8px)%7D%7D.c%7Bfill:%23e8c547;animation:burst 1.5s infinite%7D.s%7Bfill:%23e84a8a;animation:spark 1s infinite%7D.s2%7Banimation-delay:.2s%7D.s3%7Banimation-delay:.4s%7D%3C/style%3E%3Ccircle cx='16' cy='16' r='6' class='c'/%3E%3Ccircle cx='16' cy='6' r='2' class='s'/%3E%3Ccircle cx='24' cy='10' r='2' class='s s2'/%3E%3Ccircle cx='26' cy='18' r='2' class='s s3'/%3E%3Ccircle cx='22' cy='24' r='2' class='s'/%3E%3Ccircle cx='14' cy='26' r='2' class='s s2'/%3E%3Ccircle cx='6' cy='22' r='2' class='s s3'/%3E%3Ccircle cx='4' cy='14' r='2' class='s'/%3E%3Ccircle cx='8' cy='8' r='2' class='s s2'/%3E%3C/svg%3E">
+    <!-- Static fallback for older browsers -->
+    <link rel="alternate icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='6' fill='%23e8c547'/%3E%3Ccircle cx='16' cy='6' r='2' fill='%23e84a8a'/%3E%3Ccircle cx='24' cy='10' r='2' fill='%234ae8e8'/%3E%3Ccircle cx='26' cy='18' r='2' fill='%23e84a8a'/%3E%3Ccircle cx='22' cy='24' r='2' fill='%234ae8e8'/%3E%3Ccircle cx='14' cy='26' r='2' fill='%23e84a8a'/%3E%3Ccircle cx='6' cy='22' r='2' fill='%234ae8e8'/%3E%3Ccircle cx='4' cy='14' r='2' fill='%23e84a8a'/%3E%3Ccircle cx='8' cy='8' r='2' fill='%234ae8e8'/%3E%3C/svg%3E">
 
     <!-- Theme Color -->
     <meta name="theme-color" content="#0c0c0f">
@@ -364,15 +366,17 @@
 
         /* Placeholder when video is in mini mode */
         .video-placeholder {
-            display: none;
+            display: block;
             background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated));
-            border: 1px dashed rgba(232, 197, 71, 0.3);
+            border: 1px dashed rgba(232, 197, 71, 0.2);
             border-radius: 12px;
             padding: 3rem 2rem;
             text-align: center;
             margin-bottom: 3rem;
             position: relative;
             overflow: hidden;
+            min-height: 200px;
+            aspect-ratio: 16/9;
         }
 
         .video-placeholder::before {
@@ -383,17 +387,16 @@
             right: 0;
             height: 2px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
-            opacity: 0.5;
+            opacity: 0.3;
         }
 
-        .video-placeholder.visible {
-            display: block;
-            animation: fadeInPlaceholder 0.4s ease;
+        .video-placeholder .placeholder-content {
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        @keyframes fadeInPlaceholder {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
+        .video-placeholder.visible .placeholder-content {
+            opacity: 1;
         }
 
         .video-placeholder p {
@@ -1139,8 +1142,10 @@
 
             <!-- Video Placeholder (shown when video is mini) -->
             <div class="video-placeholder" id="videoPlaceholder">
-                <p>Live stream is playing in the corner</p>
-                <button id="returnVideoBtn">Return Video Here</button>
+                <div class="placeholder-content">
+                    <p>Live stream is playing in the corner</p>
+                    <button id="returnVideoBtn">Return Video Here</button>
+                </div>
             </div>
 
             <!-- Completed Section -->
@@ -1559,6 +1564,19 @@
                 links: [
                     { url: 'https://www.cbs.com', label: 'CBS - Nashville\'s Big Bash', type: '8PM ET', icon: 'TV' },
                     { url: 'https://www.paramountplus.com', label: 'Paramount+', type: 'Stream', icon: 'TV' }
+                ]
+            },
+            {
+                id: 'mexicocity',
+                name: 'Mexico City',
+                country: 'Mexico',
+                flag: 'MX',
+                utcOffset: -6, // CST
+                localTimeLabel: 'Midnight CST',
+                etLabel: '1:00 AM ET',
+                description: 'Massive celebrations at the Zócalo, one of the world\'s largest public squares. Fireworks, live music, and the traditional burning of "Año Viejo" effigies.',
+                links: [
+                    { url: 'https://www.livenowfox.com/news/new-years-2026-live', label: 'LiveNOW from FOX', type: 'Live', icon: 'TV' }
                 ]
             },
             {
@@ -2016,10 +2034,10 @@
             const viewportHeight = window.innerHeight;
 
             // Calculate when animation should start and end
-            // Start: when video top reaches 80% of viewport from top
-            // End: when video would be 200px above viewport
-            const animationStart = originalPosition.top - viewportHeight * 0.8;
-            const animationEnd = originalPosition.top - 100;
+            // Start: when scrolled past the video's original top position
+            // End: when scrolled 300px past the start
+            const animationStart = originalPosition.top - viewportHeight + 200;
+            const animationEnd = animationStart + 300;
             const animationDistance = animationEnd - animationStart;
 
             // Calculate progress (0 = at start, 1 = fully mini)
@@ -2028,8 +2046,15 @@
                 progress = Math.min(1, Math.max(0, (scrollY - animationStart) / animationDistance));
             }
 
-            // Apply easing for smoother feel
-            const easedProgress = easeOutCubic(progress);
+            // Use easeInOutCubic for smoother both directions
+            const easedProgress = progress < 0.5
+                ? 4 * progress * progress * progress
+                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+            const mini = getMiniPosition();
+
+            // Always keep placeholder visible to maintain layout
+            videoPlaceholder.classList.add('visible');
 
             if (progress <= 0) {
                 // Video in original position - reset all styles
@@ -2042,7 +2067,6 @@
                     videoSection.style.boxShadow = '';
                     videoSection.style.zIndex = '';
                     videoSection.classList.remove('mini-player');
-                    videoPlaceholder.classList.remove('visible');
                     minimizeBtn.style.display = 'none';
                     expandBtn.style.display = 'none';
                     scrollAnimationActive = false;
@@ -2051,18 +2075,15 @@
             }
 
             // Animation is active
-            if (!scrollAnimationActive) {
-                scrollAnimationActive = true;
-                videoPlaceholder.classList.add('visible');
-            }
+            scrollAnimationActive = true;
 
-            const mini = getMiniPosition();
+            // Get placeholder position for accurate reference
+            const placeholderRect = videoPlaceholder.getBoundingClientRect();
 
-            // Calculate current position based on scroll progress
-            // Start position: where video would be if it scrolled normally
-            const startTop = originalPosition.top - scrollY;
-            const startLeft = originalPosition.left;
-            const startWidth = originalPosition.width;
+            // Start position: the placeholder's current position on screen
+            const startTop = placeholderRect.top;
+            const startLeft = placeholderRect.left;
+            const startWidth = placeholderRect.width;
 
             // Interpolate all values
             const currentTop = lerp(startTop, mini.top, easedProgress);
@@ -2101,17 +2122,13 @@
             expandBtn.style.display = isMinimized ? 'flex' : 'none';
         }
 
-        // Close video completely
+        // Close video - scroll back to original position
         function closeVideo() {
-            isClosed = true;
-            videoSection.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-            videoSection.style.transform = 'scale(0.9)';
-            videoSection.style.opacity = '0';
-
-            setTimeout(() => {
-                videoSection.style.display = 'none';
-                videoPlaceholder.classList.remove('visible');
-            }, 300);
+            // Scroll back to top smoothly
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         }
 
         // Return video to original position
