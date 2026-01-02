@@ -2129,6 +2129,9 @@
             container.scrollLeft = scrollLeft - walk;
         });
 
+        // Set recap mode early so positionNeedle doesn't auto-scroll
+        window.isRecapMode = true;
+
         // Initialize and update every second
         updateDisplay();
         setInterval(updateDisplay, 1000);
