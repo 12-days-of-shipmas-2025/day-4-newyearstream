@@ -240,8 +240,8 @@
             top: 2rem;
         }
 
-        body.recap-mode .time-needle::after {
-            content: 'DRAG TO RELIVE';
+        /* Recap mode hint text below needle */
+        body.recap-mode .time-needle .drag-hint {
             position: absolute;
             top: 100%;
             left: 50%;
@@ -249,7 +249,7 @@
             font-size: 0.5rem;
             color: var(--gold);
             white-space: nowrap;
-            margin-top: 0.25rem;
+            margin-top: 1.5rem;
             letter-spacing: 0.1em;
             animation: pulse 2s ease-in-out infinite;
         }
@@ -802,30 +802,25 @@
         }
 
         .time-needle::before {
-            content: 'NOW';
+            content: '▼';
             position: absolute;
-            top: -1.25rem;
+            top: -1rem;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.6rem;
-            font-weight: 700;
+            font-size: 0.8rem;
             color: var(--gold);
-            letter-spacing: 0.15em;
             text-shadow: 0 0 10px rgba(232, 197, 71, 0.5);
         }
 
         .time-needle::after {
-            content: '';
+            content: '▲';
             position: absolute;
-            bottom: -8px;
+            bottom: -1rem;
             left: 50%;
             transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 8px solid var(--gold);
-            filter: drop-shadow(0 0 5px var(--gold));
+            font-size: 0.8rem;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(232, 197, 71, 0.5);
         }
 
         /* Navigation hints */
@@ -1234,7 +1229,7 @@
 
         <!-- Timeline First -->
         <div class="timeline-scrubber">
-            <div class="time-needle" id="timeNeedle"></div>
+            <div class="time-needle" id="timeNeedle"><span class="drag-hint">DRAG TO RELIVE</span></div>
             <div class="timeline-track-container" id="timelineContainer">
                 <div class="timeline-track" id="timelineTrack">
                     <div class="timeline-line"></div>
@@ -1937,6 +1932,8 @@
         }
 
         // Update the display
+        let timelineBuilt = false;
+
         function updateDisplay() {
             const now = new Date();
 
@@ -1955,21 +1952,35 @@
             // Group cities by time for timeline
             const cityGroups = groupCitiesByTime(sortedCities);
 
-            // Build timeline with grouped markers
-            const timelineTrack = document.getElementById('timelineTrack');
+            // Build timeline only once (don't rebuild every second to preserve scroll position)
+            if (!timelineBuilt) {
+                const timelineTrack = document.getElementById('timelineTrack');
+                timelineTrack.textContent = ''; // Clear existing content safely
 
-            let timelineHtml = '<div class="timeline-line"></div>';
-            cityGroups.forEach(group => {
-                timelineHtml += createTimelineMarker(group, now);
-            });
-            timelineTrack.innerHTML = timelineHtml;
+                // Create timeline line
+                const timelineLine = document.createElement('div');
+                timelineLine.className = 'timeline-line';
+                timelineTrack.appendChild(timelineLine);
 
-            // Position the needle after DOM has rendered
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    positionNeedle(now, sortedCities, cityGroups);
+                // Create markers using DOM methods
+                cityGroups.forEach(group => {
+                    const markerHtml = createTimelineMarker(group, now);
+                    const template = document.createElement('template');
+                    template.innerHTML = markerHtml.trim();
+                    timelineTrack.appendChild(template.content.firstChild);
                 });
-            });
+
+                timelineBuilt = true;
+            }
+
+            // Position the needle after DOM has rendered (only if not in recap mode)
+            if (!window.isRecapMode) {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        positionNeedle(now, sortedCities, cityGroups);
+                    });
+                });
+            }
 
             // Build cards
             const completedCards = [];
