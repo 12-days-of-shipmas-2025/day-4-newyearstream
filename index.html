@@ -2573,11 +2573,17 @@
         // ============================================
         // Recap Mode - Relive NYE 2026
         // ============================================
-        window.isRecapMode = false;
-        let isRecapMode = window.isRecapMode;
+        // Start in recap mode since NYE 2026 has ended
+        window.isRecapMode = true;
+        let isRecapMode = true;
         const recapToggle = document.getElementById('recapToggle');
         const recapBanner = document.getElementById('recapBanner');
         let lastTriggeredMarker = null;
+
+        // Set initial UI state for recap mode
+        recapToggle.classList.add('active');
+        recapBanner.classList.add('visible');
+        document.body.classList.add('recap-mode');
 
         // Start fireworks for recap mode
         function startRecapFireworks() {
@@ -2770,13 +2776,33 @@
 
         recapToggle.addEventListener('click', toggleRecapMode);
 
-        // Auto-enable recap mode since NYE 2026 has ended
-        // Start in recap mode by default - timeline begins at Auckland
-        setTimeout(() => {
-            if (!isRecapMode) {
-                toggleRecapMode();
-            }
-        }, 500); // Small delay to ensure DOM is ready
+        // Scroll to Auckland on load (first city to celebrate NYE)
+        // Use requestAnimationFrame to ensure DOM is fully rendered
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const container = document.getElementById('timelineContainer');
+                const markers = document.querySelectorAll('.timeline-marker');
+
+                let aucklandMarker = null;
+                markers.forEach(marker => {
+                    const cities = marker.dataset.cities || '';
+                    if (cities.includes('auckland')) {
+                        aucklandMarker = marker;
+                    }
+                });
+
+                const targetMarker = aucklandMarker || markers[0];
+                if (targetMarker) {
+                    const containerWidth = container.clientWidth;
+                    const targetScroll = targetMarker.offsetLeft - containerWidth / 2 + targetMarker.offsetWidth / 2;
+                    container.scrollLeft = targetScroll; // Instant scroll on load
+                }
+
+                // Load Auckland's fireworks video
+                changeVideoForCity('auckland');
+                checkRecapPosition();
+            });
+        });
 
         // Listen for scroll events on timeline to check position in recap mode
         const timelineContainer = document.getElementById('timelineContainer');
@@ -2785,6 +2811,15 @@
                 checkRecapPosition();
             }
         });
+
+        // Horizontal scroll with mouse wheel
+        timelineContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            timelineContainer.scrollLeft += e.deltaY + e.deltaX;
+            if (isRecapMode) {
+                checkRecapPosition();
+            }
+        }, { passive: false });
 
         // Also check on drag events
         timelineContainer.addEventListener('mousemove', () => {
