@@ -1,0 +1,27 @@
+{
+  "name": "4-newyearstream",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:ui": "npx playwright test --ui",
+    "test:report": "npx playwright show-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/12-days-of-shipmas-2025/day-4-newyearstream.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/12-days-of-shipmas-2025/day-4-newyearstream/issues"
+  },
+  "homepage": "https://github.com/12-days-of-shipmas-2025/day-4-newyearstream#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
+}
